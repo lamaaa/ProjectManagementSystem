@@ -38,7 +38,7 @@
     <div class=""></div>
     <div class="loginWraper" style="background: url('');">
         <div id="loginform" class="loginBox" style="background: url();">
-            <form class="form form-horizontal" action="" method="post">
+            <form class="form form-horizontal" action="auth/login" method="post">
                 {{ csrf_field() }}
                 <div class="row cl" style="margin-top: -100px;">
                     <div class="formControls" style="text-align: center">

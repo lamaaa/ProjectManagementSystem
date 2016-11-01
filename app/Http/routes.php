@@ -32,5 +32,8 @@ Route::group(['prefix' => 'manager'], function(){
         Route::get('/customer_list', 'Manager\CustomerController@toList');
         Route::get('/customer_add', 'Manager\CustomerController@toAdd');
         Route::post('/customer_add', 'Manager\CustomerController@add');
+        Route::get('/customer_delete', 'Manager\CustomerController@delete');
+        Route::get('/customer_details', 'Manager\CustomerController@getCustomerDetails');
     });
 });
+

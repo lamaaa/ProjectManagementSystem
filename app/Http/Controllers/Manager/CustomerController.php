@@ -15,62 +15,99 @@ use App\Entity\User;
 use App\Http\Controllers\Controller;
 use App\Models\M3Result;
 use Illuminate\Http\Request;
+use DB;
+use Carbon\Carbon;
+use Excel;
 
 class CustomerController extends Controller
 {
-    public static $customers = array();
-    public static $customers_hold = array();
-
     public function toList(Request $request)
     {
-        // 获取所有客户
         $customers = Customer::all();
         $pms = User::where('role', '=', '项目经理')->get();
-        // 获取作为排序的列和顺序
-        $col = $request->input('col', '');
-        $sort = $request->input('sort', '');
-
-        $filter = 'all';
-        if($col !== "")
-        {
-            $customers = $this->sortWith($filter, $sort, $col);
-        }
-
-        $filter_name = $request->input('filter_name', '');
-        $value = $request->input('value', '');
+        $project_sources = Project_source::all();
         $export = $request->input('export', '');
 
-        if($filter_name != null)
+        // 获取作为排序的列和顺序
+        $col = $request->input('col', 'id');
+        $sort = $request->input('sort', 'asc');
+        // 用户点击“查询”
+        // 获得搜索的筛选器和值
+        // 根据筛选器和筛选值筛选出结果
+        $filter_name = $request->input('filter_name', null);
+        $filter_value = $request->input('filter_value', '');
+        
+        if(!$request->get('reset'))
         {
-            $customers = Customer::where($filter_name, '=', $value)->get();
+            $customers = $this->sortWith($sort, $col, $filter_name, $filter_value);
+        }
+
+        // 导出excel表
+        if($export != null && $export === 'true')
+        {
+            $this->derivedExcel($customers);
         }
 
         return view('manager.customer_list')
-            ->with('customers', $customers)
             ->with('sort', $sort)
             ->with('filter_name', $filter_name)
             ->with('query_value', $request->get('value'))
-            ->with('pms', $pms);
+            ->with('pms', $pms)
+            ->with('customers', $customers)
+            ->with('project_sources', $project_sources);
     }
-
-    public function sortWith($filter, $sort, $col)
+    
+    public function sortWith($sort, $col, $filter_name, $filter_value)
     {
         if($sort == "desc")
         {
-            if($filter == 'all')
-            {
-                $customers = Customer::orderBy($col, 'DESC')->get();
-            }
+           if($filter_value == "")
+           {
+
+               return Customer::orderBy($col, 'desc')->get();
+           }
+           return Customer::where($filter_name, '=', $filter_value)
+                ->orderBy($col, 'desc')
+                ->get();
         }
         else if($sort == "asc")
         {
-            if($filter == 'all')
+            if($filter_name == "")
             {
-                $customers = Customer::orderBy($col, 'ASC')->get();
+                return Customer::orderBy($col, 'asc')->get();
             }
+            return $customers =  Customer::where($filter_name, '=', $filter_value)
+                ->orderBy($col, 'asc')
+                ->get();
         }
+    }
 
-        return $customers;
+    public function derivedExcel($customers)
+    {
+        $data = array();
+
+        $title = ['客户ID', '客户名称', '客户公司',
+            '联系方式', '介绍', '状态', '添加时间', '优先级'];
+
+        array_push($data, $title);
+
+        foreach ($customers as $customer)
+        {
+            $customer_data = array();
+            array_push($customer_data, $customer->id, $customer->name, $customer->company,
+                $customer->phone, $customer->description, $customer->status,
+                $customer->created_at, $customer->priority);
+            array_push($data, $customer_data);
+        }
+        $footer = ['注意：优先级的值2,1,0分别代表：高，中，低'];
+
+        array_push($data, $footer);
+        $filename = Carbon::now()->toDateString() . "客户表";
+        Excel::create($filename, function ($excel) use ($data){
+            $excel->sheet('score', function($sheet) use ($data){
+                $sheet->rows($data);
+            });
+        })->export('xls');
     }
 
     public function toAdd()
@@ -98,6 +135,27 @@ class CustomerController extends Controller
         $m3_result->message = '添加成功';
 
         return $m3_result->toJason();
+    }
+
+    public function delete(Request $request)
+    {
+        $id = $request->input('id', '');
+        Customer::findOrFail($id)->delete();
+
+        return redirect('manager/customer_list');
+    }
+
+    public function getCustomerDetails(Request $request)
+    {
+        $customer_id = $request->input('customer_id', null);
+        if($customer_id == null)
+        {
+            return;
+        }
+        $from = $request->input('from', '');
+        $customer = Customer::findOrFail($customer_id);
+        return view('manager.customer_details')
+            ->with('customer', $customer);
     }
 }
 

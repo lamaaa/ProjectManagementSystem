@@ -85,18 +85,6 @@ class AccountController extends Controller
         $id = $request->input('id', '');
         DB::table('users')->where('id', '=', $id)->delete();
 
-        $accounts = User::all();
-
-        $designers = User::where('role', '=', '设计师')->get();
-        $admins = User::where('role', '=', '管理员')->get();
-        $pms = User::where('role', '=', '项目经理')->get();
-        $engineers = User::where('role', '=', '销售人员')->get();
-
-        return view('manager.account_list')
-            ->with('accounts', $accounts)
-            ->with('designers', $designers)
-            ->with('engineers', $engineers)
-            ->with('admins', $admins)
-            ->with('pms', $pms);
+        return redirect('manager/account_manage');
     }
 }

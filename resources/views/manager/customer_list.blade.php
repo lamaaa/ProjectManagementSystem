@@ -9,45 +9,42 @@
             <a href="javascript:;" onclick="export_excel_all_customers()"
                class="btn btn-primary radius">导出列表(Excel)</a>
             <div style="margin-left: 300px;margin-top: -28px">
-
+                {{--筛选器--}}
                 <div class="display: inline" style="float: left">
                     <label for="select_customer_filter" style="margin-left: 23px">筛选条:</label>
                     <select name="" onchange="filter_change(this);" id="select_customer_filter" class="select"
                             style="width: 60%;margin-left: 15px;margin-top: -23px;float: left;margin-left: 100px;">
                         <option value="name" @if ($filter_name === 'name') selected="selected" @endif>客户名称</option>
-                        <option value="status" @if ($filter_name === 'status') selected="selected" @endif>项目进度</option>
-                        <option value="principal" @if ($filter_name === 'principal') selected="selected" @endif>项目经理</option>
-                        <option value="source" @if ($filter_name === 'source') selected="selected" @endif>项目来源</option>
+                        <option value="status" @if ($filter_name === 'status') selected="selected" @endif>状态</option>
+                        <option value="principal" @if ($filter_name === 'principal') selected="selected" @endif>负责人</option>
+                        <option value="source" @if ($filter_name === 'source') selected="selected" @endif>来源</option>
                         <option value="priority" @if ($filter_name === 'priority') selected="selected" @endif>优先级</option>
                     </select>
                 </div>
 
-                {{--//优先级--}}
+                {{--优先级--}}
                 <div id="value_priority" class=""
                      style="height: 30px;display: inline;float: left; @if (isset($filter_name) && $filter_name === 'priority') display: block; @else display:none; @endif">
-                    <label for="" style="margin-left: 50px">值:</label>
                     <select name="" id="value_priority_select" class="select" style="width: 160px;margin-left: 15px">
                         <option value="2" @if ($query_value == '2') selected="selected" @endif>高</option>
                         <option value="1" @if ($query_value == '1') selected="selected" @endif>中</option>
                         <option value="0" @if ($query_value == '0') selected="selected" @endif>低</option>
                     </select>
                 </div>
-                {{--//状态--}}
+                {{--进度--}}
                 <div id="value_status" class=""
                      style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'status') display: block; @else display:none; @endif">
-                    <label for="" style="margin-left: 50px">值:</label>
                     <select name="" id="value_status_select" class="select" style="width: 160px;margin-left: 15px">
                         <option value="未联系" @if ($query_value == '未联系') selected="selected" @endif>未联系</option>
                         <option value="沟通中" @if ($query_value == '沟通中') selected="selected" @endif>沟通中</option>
-                        <option value="拒绝" @if ($query_value == '拒绝') selected="selected" @endif>拒绝</option>
-                        <option value="跟进" @if ($query_value == '跟进') selected="selected" @endif>跟进</option>
-                        <option value="已转化" @if ($query_value == '已转化') selected="selected" @endif>已转化</option>
+                        <option value="开发中" @if ($query_value == '开发中') selected="selected" @endif>开发中</option>
+                        <option value="测试中" @if ($query_value == '测试中') selected="selected" @endif>测试中</option>
+                        <option value="已完成" @if ($query_value == '已完成') selected="selected" @endif>已完成</option>
                     </select>
                 </div>
                 {{--项目经理--}}
                 <div id="value_principal" class=""
                      style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'principal') display: block; @else display:none; @endif">
-                    <label for="" style="margin-left: 50px">值:</label>
                     <select name="" id="value_principal_select" class="select" style="width: 160px;margin-left: 15px">
                         @foreach($pms as $pm)
                             <option value="{{$pm->name}}" @if ($query_value == $pm->name) selected="selected" @endif>
@@ -56,16 +53,16 @@
                         @endforeach
                     </select>
                 </div>
-                项目来源
+                {{--项目来源--}}
                 <div id="value_source" class=""
                      style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'source') display: block; @else display:none; @endif">
                     <select name="" id="value_source_select" class="select" style="width: 160px;margin-left: 15px">
                         @foreach($project_sources as $project_source)
-                                <option value="{{$project_source->source}}" @if ($query_value == $project_source->source) selected="selected" @endif>{{$item[0]}}</option>
+                                <option value="{{$project_source->source}}" @if ($query_value == $project_source->source) selected="selected" @endif>{{$project_source->source}}</option>
                         @endforeach
                     </select>
                 </div>
-                输入文本
+                {{--输入文本--}}
                 <div id="value_text" class="" style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name !== 'name') display: none; @endif">
                     <input type="text" class="input input-text" style="width: 160px;margin-left: 15px" value="{{ $filter_name == 'name' && $query_value ? $query_value : '' }}"
                            id="value_text_input">
@@ -83,7 +80,7 @@
         <table class="table table-border table-bordered table-hover table-bg table-sort">
             <thead>
             <tr class="text-c">
-                <th width="40" onclick="id_sort();">ID
+                <th width="40" onclick="sort('id');">ID
                     <i
                             class="Hui-iconfont"
                             style="margin-left: 6px;cursor: pointer">
@@ -97,13 +94,13 @@
                 {{--//这里要使用 tag--}}
                 <th width="">负责人</th>
                 <th width="">状态</th>
-                <th width="90" onclick="time_sort();">添加时间<i class="Hui-iconfont"
+                <th width="90" onclick="sort('created_at');">添加时间<i class="Hui-iconfont"
                                                              style="margin-left: 6px;cursor: pointer">
                         &#xe675;</i></th>
-                <th width="80" onclick="priority_sort();">优先级<i class="Hui-iconfont"
+                <th width="80" onclick="sort('priority');">优先级<i class="Hui-iconfont"
                                                                 style="margin-left: 6px;cursor: pointer">
                         &#xe675;</i></th>
-                {{--<th width="" onclick="">操作</th>--}}
+                <th width="">操作</th>
             </tr>
             </thead>
             <tbody>
@@ -112,7 +109,7 @@
                     <td>{{$customer->id}}</td>
                     <td width="">
                         <a title="详情" href="javascript:;"
-                           onclick="customer_content('客户详情','customer_content?customer_name={{$customer->name}}&from=customer_list')"
+                           onclick="customer_details('客户详情','customer_details?customer_id={{$customer->id}}&from=customer_list')"
                            class="ml-5"
                            style="text-decoration:none;color: #5A98DE">{{$customer->name}}</a>
                     </td>
@@ -138,17 +135,23 @@
                             低
                         @endif
                     </td>
+                    <td>
+                        <a href="javascript:;" onclick="delete_customer('/manager/customer_delete/?id={{$customer->id}}')"
+               class="btn btn-danger radius">删除</a>
+                    </td>
                 </tr>
             @endforeach
             </tbody>
         </table>
     </div>
+
 @endsection
 
 @section('my-js')
     <script type="text/javascript">
-
         var td_created_ats = document.getElementsByClassName('td_created_at');
+
+
         for (var i = 0; i < td_created_ats.length; i++) {
             var old_value = td_created_ats[i].innerHTML.toString();
 
@@ -169,34 +172,36 @@
             }
         });
 
-        var filter_name = "name";
-
-        function query_customer() {
-
-            var value_priority_final = $('#value_priority_select option:selected').val();
-
-            var value_status_final = $('#value_status_select option:selected').val();
-
-            var value_principal_final = $("#value_principal_select option:selected").val();
-
-            var value_source_final = $("#value_source_select option:selected").val();
-
-            var value_text_final = $('#value_text_input').val();
-
+        function get_filter_value(filter_name)
+        {
             var value = "";
 
-            if (filter_name == "priority") {
-                value = value_priority_final;
-            } else if (filter_name == "status") {
-                value = value_status_final
-            } else if (filter_name == "principal") {
-                value = value_principal_final;
-            } else if(filter_name == "source"){
-                value = value_source_final;
-            } else if (filter_name == 'name') {
-                value = value_text_final;
+            switch (filter_name)
+            {
+                case "priority":
+                    value = $('#value_priority_select option:selected').val();
+                    break;
+                case "status":
+                    value = $('#value_status_select option:selected').val();
+                    break;
+                case "principal":
+                    value = $("#value_principal_select option:selected").val();
+                    break;
+                case "source":
+                    value = $("#value_source_select option:selected").val();
+                    break;
+                case "name":
+                    value = $('#value_text_input').val();
+                    break;
             }
-            location.href = "customer_list?filter_name=" + filter_name + "&value=" + value + "";
+
+            return value;
+        }
+
+        function query_customer() {
+            var filter_name = $('#select_customer_filter option:selected').val();
+            var filter_value = get_filter_value(filter_name);
+            location.href = "customer_list?filter_name=" + filter_name + "&filter_value=" + filter_value + "";
         }
 
         //导出客户列表
@@ -212,6 +217,7 @@
             var value_principal = document.getElementById("value_principal");
             var value_source = document.getElementById("value_source");
 
+            // 改变筛选器名字
             filter_name = obj.value;
 
             switch (filter_name) {
@@ -253,7 +259,7 @@
             }
         }
 
-        function customer_content(title, url) {
+        function customer_details(title, url) {
             var index = layer.open({
                 type: 2,
                 title: title,
@@ -261,7 +267,6 @@
                 area: ['100%', '100%']
             });
 
-//            layer.full(index);
         }
 
         function customer_add(title, url) {
@@ -273,31 +278,26 @@
             });
         }
 
-        function id_sort() {
+        function sort(orderBy) {
+            var filter_name = $('#select_customer_filter option:selected').val();
+            var filter_value = get_filter_value(filter_name);
             var sort_mark = document.getElementById("sort_mark").innerHTML;
             if (sort_mark == "desc") {
-                location.href = "customer_list?col=id&sort=asc";
+                location.href = "customer_list?col=" + orderBy + "&sort=asc&filter_name=" +
+                        filter_name + "&filter_value=" +
+                        filter_value;
             } else if (sort_mark == "asc" || sort_mark == "") {
-                location.href = "customer_list?col=id&sort=desc";
+                location.href = "customer_list?col=" + orderBy + "&sort=desc&filter_name=" +
+                        filter_name + "&filter_value=" +
+                        filter_value;
             }
         }
 
-
-        function time_sort() {
-            var sort_mark = document.getElementById("sort_mark").innerHTML;
-            if (sort_mark == "desc") {
-                location.href = "customer_list?col=created_at&sort=asc";
-            } else if (sort_mark == "asc" || sort_mark == "") {
-                location.href = "customer_list?col=created_at&sort=desc";
-            }
-        }
-
-        function priority_sort() {
-            var sort_mark = document.getElementById("sort_mark").innerHTML;
-            if (sort_mark == "desc") {
-                location.href = "customer_list?col=priority&sort=asc";
-            } else if (sort_mark == "asc" || sort_mark == "") {
-                location.href = "customer_list?col=priority&sort=desc";
+        function delete_customer(url)
+        {
+            if(window.confirm('确认删除该客户？'))
+            {
+                window.location.href = url;
             }
         }
 
@@ -312,7 +312,6 @@
             })
 
         })
-
 
     </script>
 @endsection
