@@ -1,5 +1,5 @@
 @extends('master')
-
+<link rel="stylesheet" href="{{asset('/css/validform.css')}}">
 @section('content')
     <div class="page-container">
         <form action="" method="post" class="form form-horizontal" id="form-customer-add" data-toggle="validator">
@@ -55,7 +55,11 @@
                             onchange="source_change();" datatype="*">
                         <option value="请选择">请选择</option>
                         @foreach($project_sources as $project_source)
+                            @if(value($project_source->source) == "")
+                                <option value="{{$project_source->source}}">空</option>
+                            @else
                                 <option value="{{$project_source->source}}">{{$project_source->source}}</option>
+                            @endif
                         @endforeach
                         <option value="other" id="other">其他(自定义)</option>
                     </select>

@@ -27,7 +27,7 @@ class LoginController extends Controller
         {
             $m3_result->status = 1;
             $m3_result->message = "帐号或密码不能为空";
-            return $m3_result->toJason();
+            return $m3_result->toJson();
         }
 
         $user = User::where('username', $username)->where('password', $password)->first();
@@ -45,7 +45,7 @@ class LoginController extends Controller
             $request->session()->put('user', $user);
         }
 
-        return $m3_result->toJason();
+        return $m3_result->toJson();
     }
 
     public function toExit(Request $request)

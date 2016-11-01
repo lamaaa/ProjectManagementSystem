@@ -134,7 +134,7 @@ class CustomerController extends Controller
         $m3_result->status = 0;
         $m3_result->message = '添加成功';
 
-        return $m3_result->toJason();
+        return $m3_result->toJson();
     }
 
     public function delete(Request $request)
@@ -154,8 +154,47 @@ class CustomerController extends Controller
         }
         $from = $request->input('from', '');
         $customer = Customer::findOrFail($customer_id);
+        $pms = User::where('role', '=', '项目经理')->get();
+        $project_sources = Project_source::all();
+
         return view('manager.customer_details')
-            ->with('customer', $customer);
+            ->with('customer', $customer)
+            ->with('pms', $pms)
+            ->with('project_sources', $project_sources);
+    }
+
+    public function update(Request $request)
+    {
+        // 若项目来源表中没有新增项目来源，则增加一条记录
+        Project_source::firstOrCreate(['source' => $request->input('source', '')]);
+
+        $customer_id = $request->input('customer_id', '');
+        $name = $request->input('name', '');
+        $company = $request->input('company', '');
+        $phone = $request->input('phone', '');
+        $description = $request->input('desc', '');
+        $status = $request->input('status', '');
+        $priority = $request->input('priority', '');
+        $source = $request->input('source', '');
+        $principal = $request->input('principal', '');
+        $new_customer = Customer::findOrFail($customer_id);
+
+        $new_customer->name = $name;
+        $new_customer->company = $company;
+        $new_customer->phone = $phone;
+        $new_customer->description = $description;
+        $new_customer->source = $source;
+        $new_customer->principal = $principal;
+        $new_customer->status = $status;
+        $new_customer->priority = $priority;
+
+        $new_customer->save();
+
+        $m3_result = new M3Result();
+        $m3_result->status = 0;
+        $m3_result->message = "添加成功";
+
+        return $m3_result->toJson();
     }
 }
 

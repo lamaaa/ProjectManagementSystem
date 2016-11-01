@@ -53,7 +53,7 @@ class AccountController extends Controller
         $m3_result->status = 0;
         $m3_result->message = '添加成功';
 
-        return $m3_result->toJason();
+        return $m3_result->toJson();
     }
 
     public function toUpdatePassword(Request $request)
@@ -77,7 +77,7 @@ class AccountController extends Controller
         $m3_result->status = 0;
         $m3_result->message = '重置成功';
 
-        return $m3_result->toJason();
+        return $m3_result->toJson();
     }
 
     public function delete(Request $request)
