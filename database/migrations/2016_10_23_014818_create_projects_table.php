@@ -13,23 +13,18 @@ class CreateProjectsTable extends Migration
     public function up()
     {
         Schema::create('projects', function (Blueprint $table) {
-            $table->increments('id')->unique();
-            $table->timestamps();
-            $table->string('name');
-            $table->string('affiliation');
-            $table->integer('priority');
-            $table->float('quote');
-            $table->string('stage');
-            $table->timestamp('completion_time');
-            $table->string('project_type');
-            $table->string('project_situation');
-            $table->integer('workforce');
-            $table->text('requirements');
-            $table->float('budget');
-            $table->integer('status');
-            $table->string('own_clound');
-            $table->float('cost');
-            $table->float('profit');
+            $table->increments('id')->unique();     // 项目ID
+            $table->timestamps();                   // 创建时间和修改时间
+            $table->string('name');                 // 项目名称
+            $table->string('affiliation');          // 所属单位
+            $table->integer('priority');            // 优先级
+            $table->float('quote');                 // 现报价
+            $table->string('stage');                // 进度
+            $table->timestamp('deadline');          // 截止时间
+            $table->timestamp('completion_time');   // 完成时间
+            $table->string('project_type');         // 项目类型
+            $table->text('requirements');           // 客户需求
+            $table->integer('status');              // 进度
         });
     }
 

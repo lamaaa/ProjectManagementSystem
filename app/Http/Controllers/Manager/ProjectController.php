@@ -10,24 +10,26 @@ class ProjectController extends Controller
 {
     public function toList(Request $request)
     {
-        $projects = Project::all();
-
         // 接受get参数
-        $col = $request->input('col', '');
-        $sort = $request->input('sort', '');
+        $col = $request->input('col', 'asc');
+        $sort = $request->input('sort', 'id');
 
-        switch ($col)
+        $projects = $this->sortWith($sort, $col);
+
+        return view('manager.project_list')
+            ->with('projects', $projects)
+            ->with('sort', $sort);
+    }
+
+    public function sortWith($sort, $col)
+    {
+        if($sort == "desc")
         {
-            case "id":
-                if ($sort == "desc")
-                {
-                    $customers = Customer::orderBy('id', 'DESC')->get();
-                }
-                else if($sort = "asc")
-                {
-                    $customers = Customer::orderBy('id', 'ASC')->get();
-                }
-                break;
+            return Project::orderBy($col, 'desc')->get();
+        }
+        else if($sort == "asc")
+        {
+            return Project::orderBy($col, 'asc')->get();
         }
     }
 }
