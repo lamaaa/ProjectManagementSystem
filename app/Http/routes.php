@@ -29,6 +29,8 @@ Route::group(['prefix' => 'manager'], function(){
 
     Route::group(['middleware' => 'check.user.login'], function(){
         Route::get('/project_list', 'Manager\ProjectController@toList');
+        Route::get('/project_add', 'Manager\ProjectController@toAdd');
+        Route::post('/project_add', 'Manager\ProjectController@add');
         Route::get('/customer_list', 'Manager\CustomerController@toList');
         Route::get('/customer_add', 'Manager\CustomerController@toAdd');
         Route::post('/customer_add', 'Manager\CustomerController@add');

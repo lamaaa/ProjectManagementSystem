@@ -152,7 +152,6 @@ class CustomerController extends Controller
         {
             return;
         }
-        $from = $request->input('from', '');
         $customer = Customer::findOrFail($customer_id);
         $pms = User::where('role', '=', '项目经理')->get();
         $project_sources = Project_source::all();

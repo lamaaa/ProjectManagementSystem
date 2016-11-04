@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Manager;
 
+use App\Entity\Customer;
 use App\Entity\Project;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Entity\User;
 
 class ProjectController extends Controller
 {
@@ -31,5 +33,18 @@ class ProjectController extends Controller
         {
             return Project::orderBy($col, 'asc')->get();
         }
+    }
+
+    public function toAdd(){
+        $customers = Customer::all();
+        $pms = User::where('role', '=', '项目经理');
+        $engineers = User::where('role', '=', '工程师');
+        $designers = User::where('role', '=', '设计师');
+
+        return view('manager.project_add')
+            ->with('customers', $customers)
+            ->with('pms', $pms)
+            ->with('engineers', $engineers)
+            ->with('designers', $designers);
     }
 }

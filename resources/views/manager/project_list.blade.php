@@ -4,7 +4,7 @@
     <div class="pd-20">
         <div class="cl pd-5 bg-1 bk-gray">
   		<span class="l">
-  			<a href="javascript:;" onclick="project_add('添加项目','project/add')" class="btn btn-success radius"><i
+  			<a href="javascript:;" onclick="project_add('添加项目','project_add')" class="btn btn-success radius"><i
                         class="Hui-iconfont">&#xe600;</i> 添加项目</a>
 
             	<a href="javascript:;" onclick="export_excel_all_projects();"
