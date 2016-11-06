@@ -34,11 +34,11 @@
 
 
     </style>
-    <link href="css/H-ui.login.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/H-ui.login.css" rel="stylesheet" type="text/css"/>
     <div class=""></div>
     <div class="loginWraper" style="background: url('');">
         <div id="loginform" class="loginBox" style="background: url();">
-            <form class="form form-horizontal" action="auth/login" method="post">
+            <form class="form form-horizontal" action="/auth/login" method="post">
                 {{ csrf_field() }}
                 <div class="row cl" style="margin-top: -100px;">
                     <div class="formControls" style="text-align: center">
@@ -48,7 +48,7 @@
                 <div class="row cl">
                     <label class="form-label col-3"><i class="Hui-iconfont">&#xe60d;</i></label>
                     <div class="formControls col-8">
-                        <input id="" name="username" type="text" placeholder="账户" class="input-text size-L">
+                        <input id="" name="username" type="text" placeholder="帐号" class="input-text size-L">
                     </div>
                 </div>
 
@@ -61,8 +61,7 @@
                 </div>
                 <div class="row">
                     <div class="formControls" style="text-align: center">
-                        <input onclick="onLogin();" name="" id="btn_login" type="button" class="btn btn-success radius size-L"
-                               value="&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;">
+                        <button type="submit" class="btn btn-success radius size-L">&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;</button>
                     </div>
                 </div>
             </form>
@@ -70,71 +69,4 @@
     </div>
     <div class="footer" style="background-color: black">Copyright <a href="https://github.com/lamaaa">@Lam</a></div>
 @endsection
-@section('my-js')
-    <script type="text/javascript">
 
-        function onLogin() {
-
-            var username = $('input[name=username]').val();
-            var password = $('input[name=password]').val();
-
-            $.ajax({
-                type: 'post', // 提交方式 get/post
-                url: '/auth/login', // 需要提交的 url
-                dataType: 'json',
-                data: {
-                    username: username,
-                    password: password,
-                    _token: "{{csrf_token()}}"
-                },
-                success: function (data) {
-                    if (data == null) {
-                        layer.msg('服务端错误', {icon: 2, time: 2000});
-                        return;
-                    }
-                    if (data.status != 0) {
-                        layer.msg(data.message, {icon: 2, time: 2000});
-                        return;
-                    }
-
-                    role = data.message;
-                    if (role == "管理员") {
-                        location.href = '/manager/index';
-                    }
-
-                    switch (role) {
-                        case "管理员":
-                            location.href = "/manager/index";
-                            break;
-                        case "工程师":
-                            location.href = "/engineer/index";
-                            break;
-                        case "项目经理":
-                            location.href = "/pm/index";
-                            break;
-                        case "设计师":
-                            location.href = "/designer/index";
-                            break;
-                    }
-
-                },
-                error: function (xhr, status, error) {
-                    console.log(xhr);
-                    console.log(status);
-                    console.log(error);
-                    layer.msg('ajax error', {icon: 2, time: 2000});
-                },
-            });
-        }
-
-        $("#input_password").bind("keydown" , function(e){
-            var theEvent = e || window.event;
-            var code = theEvent.keyCode || theEvent.which || theEvent.charCode;
-            if (code == 13) {
-                //回车执行查询
-                $("#btn_login").click();
-            }
-        });
-
-    </script>
-@endsection

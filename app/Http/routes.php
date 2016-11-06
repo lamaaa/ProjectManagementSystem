@@ -11,9 +11,9 @@
 |
 */
 
-Route::get('/', 'LoginController@toLogin');
-Route::post('/auth/login', 'LoginController@Login');
-Route::get('/exit', 'LoginController@toExit');
+Route::get('/auth/login/', 'Auth\AuthController@getLogin');
+Route::post('/auth/login', 'Auth\AuthController@postLogin');
+Route::get('/logout', 'Auth\AuthController@getLogout');
 
 Route::group(['prefix' => 'manager'], function(){
     Route::group(['middleware' => 'check.manager.login'], function(){
