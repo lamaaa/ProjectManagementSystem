@@ -6,7 +6,7 @@
  * Time: 上午10:43
  */
 
-namespace App\Http\Controllers\Manager;
+namespace App\Http\Controllers\admin;
 
 
 use App\Entity\Customer;
@@ -21,7 +21,7 @@ use Excel;
 
 class CustomerController extends Controller
 {
-    public function toList(Request $request)
+    public function index(Request $request)
     {
         $customers = Customer::all();
         $pms = User::where('role', '=', '项目经理')->get();

@@ -6,48 +6,62 @@
  * Time: 上午10:47
  */
 
-namespace App\Http\Controllers\Manager;
+namespace App\Http\Controllers\admin;
 
 
-use App\Entity\User;
+use App\User;
 use App\Http\Controllers\Controller;
-use App\Models\M3Result;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
 
-class AccountController extends Controller
+class UserController extends Controller
 {
-    public function toList(Request $request)
+    // 列出所有用户
+    public function index(Request $request)
     {
-        $accounts = User::all();
+        $users = User::all();
 
+        $admins = array();
+        $commonUsers = array();
         // 接受get参数
-        $sort = $request->input('sort', '');
+        $sort = $request->input('sort', 'asc');
 
         // 拆分身份
-        $designers = User::where('role', '=', '设计师')->get();
-        $admins = User::where('role', '=', '管理员')->get();
-        $pms = User::where('role', '=', '项目经理')->get();
-        $engineers = User::where('role', '=', '工程师')->get();
+        // 区分超级管理员和普通用户
+        foreach ($users as $user)
+        {
+            if ($user->hasRole('admin'))
+            {
+                $admins[] = $user;
+            }
+            else
+            {
+                $commonUsers[] = $user;
+            }
+        }
 
-        return view('manager.account_list')
-            ->with('accounts', $accounts)
-            ->with('sort', $sort)
-            ->with('designers', $designers)
-            ->with('engineers', $engineers)
-            ->with('pms', $pms)
-            ->with('admins', $admins);
+        return view('admin.users.user_index')
+            ->with('admins', $admins)
+            ->with('commonUsers', $commonUsers)
+            ->with('sort', $sort);
     }
 
-    public function toAdd()
+    // 添加用户表单
+    public function create()
     {
-        return view('manager.account_add');
+        return view('admin.users.user_add');
     }
 
-    public function add(Request $request)
+    // 添加用户
+    public function store(Request $request)
     {
-        User::create($request->all());
+        // 写入用户表
+        User::create([
+            'username' => $request->input('username'),
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => bcrypt($request->input('password')),
+        ]);
 
         $m3_result = new M3Result();
         $m3_result->status = 0;

@@ -4,7 +4,7 @@
 
     <div class="page-container">
         <div class="cl pd-5 bg-1 bk-gray">
-            <button class="btn btn-success radius" onclick="addAccount();"><i class="Hui-iconfont">&#xe600;</i>添加成员
+            <button class="btn btn-success radius" onclick="addUser();"><i class="Hui-iconfont">&#xe600;</i>添加成员
             </button>
         </div>
 
@@ -42,7 +42,7 @@
         </div>
 
         <div class="panel panel-default">
-            <div class="panel-header">项目经理</div>
+            <div class="panel-header">普通成员</div>
             <div class="panel-body">
                 <table class="table table-border table-bg">
                     <thead>
@@ -54,91 +54,20 @@
                     </thead>
 
                     <tbody>
-                    @foreach($pms as $pm)
+                    @foreach($commonUsers as $commonUser)
                         <tr class="">
-                            <td>{{$pm->name}}</td>
-                            <td>{{$pm->username}}</td>
+                            <td>{{$commonUser->name}}</td>
+                            <td>{{$commonUser->username}}</td>
                             <td>
                                 <a title="重置密码" href="javascript:;"
-                                   onclick="edit_password('重置密码','/manager/update_password?id={{$pm->id}}')" class="ml-5"
+                                   onclick="edit_password('重置密码','/manager/update_password?id={{$commonUser->id}}')" class="ml-5"
                                    style="text-decoration:none;color: #0a6999">重置密码</a>
                                 <a title="" href="javascript:;"
-                                  onclick="delete_account('/manager/delete_account/?id={{$pm->id}}')"
+                                  onclick="delete_account('/manager/delete_account/?id={{$commonUser->id}}')"
                                    class="ml-5"
                                    style="text-decoration:none;color: #c00">删除帐号</a>
                             </td>
                             </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-header">工程师</div>
-            <div class="panel-body">
-
-                <table class="table table-border table-bg">
-                    <thead>
-                    <tr>
-                        <th width="33%">昵称</th>
-                        <th width="33%">用户名</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    @foreach($engineers as $engineer)
-                        <tr class="">
-                            <td>{{$engineer->name}}</td>
-                            <td>{{$engineer->username}}</td>
-                            <td>
-                                <a title="修改密码" href="javascript:;"
-                                   onclick="edit_password('重置密码','/manager/update_password?id={{$engineer->id}}')" class="ml-5"
-                                   style="text-decoration:none;color: #0a6999">重置密码</a>
-                                <a title="" href="javascript:;"
-                                  onclick="delete_account('/manager/delete_account/?id={{$engineer->id}}')"
-                                   class="ml-5"
-                                   style="text-decoration:none;color: #c00">删除帐号</a>
-                            </td>
-                            </td>
-
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-
-            </div>
-        </div>
-
-        <div class="panel panel-default">
-            <div class="panel-header">设计师</div>
-            <div class="panel-body">
-
-                <table class="table table-border table-bg">
-                    <thead>
-                    <tr>
-                        <th width="33%">昵称</th>
-                        <th width="33%">用户名</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    @foreach($designers as $designer)
-                        <tr class="">
-                            <td>{{$designer->name}}</td>
-                            <td>{{$designer->username}}</td>
-                            <td>
-                                <a title="重置密码" href="javascript:;"
-                                   onclick="edit_password('重置密码','/manager/update_password?id={{$designer->id}}')" class="ml-5"
-                                   style="text-decoration:none;color: #0a6999">重置密码</a>
-                                <a title="" href="/manager/delete_account/?id={{$designer->id}}"
-                                   class="ml-5"
-                                   style="text-decoration:none;color: #c00">删除帐号</a>
-                            </td>
-                            </td>
-
                         </tr>
                     @endforeach
                     </tbody>
@@ -146,8 +75,6 @@
             </div>
         </div>
     </div>
-    
-    
 @endsection
 @section('my-js')
     <script type="text/javascript">
@@ -163,11 +90,11 @@
         }
 
         //转到添加帐号界面
-        function addAccount() {
+        function addUser() {
             var index = layer.open({
                 type: 2,
                 title: "添加成员",
-                content: "/manager/account_add",
+                content: "user/create",
                 area: ['100%', '100%']
             });
 

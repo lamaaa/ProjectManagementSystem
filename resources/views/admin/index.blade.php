@@ -1,11 +1,11 @@
-@extends('manager.master')
+@extends('admin.master')
 
 @section('content')
     <header class="Hui-header cl"><a class="Hui-logo l" title="身份" href="">您好!</a><span
                 class="Hui-subtitle l">{{ $name }}</span>
         <ul class="Hui-userbar">
             <li></li>
-            <li><a href="/exit" style="color:white;">退出</a></li>
+            <li><a href="/logout" style="color:white;">退出</a></li>
         </ul>
         <a href="javascript:;" class="Hui-nav-toggle Hui-iconfont" aria-hidden="false">&#xe667;</a>
     </header>
@@ -17,7 +17,7 @@
                 </dt>
                 <dd>
                     <ul>
-                        <li><a _href="customer_list?reset=1" data-title="客户" href="javascript:void(0)">客户列表页</a></li>
+                        <li><a _href="customer?reset=1" data-title="客户" href="javascript:void(0)">客户列表页</a></li>
                         <li><a _href="statistics_crm" data-title="统计信息" href="javascript:void(0)">统计信息</a></li>
                     </ul>
                 </dd>
@@ -38,7 +38,7 @@
                 </dt>
                 <dd>
                     <ul>
-                        <li><a _href="account_manage" data-title="帐号管理" href="javascript:void(0)">管理成员帐号</a></li>
+                        <li><a _href="user" data-title="帐号管理" href="javascript:void(0)">管理成员帐号</a></li>
                     </ul>
                 </dd>
             </dl>
@@ -60,7 +60,7 @@
         <div id="iframe_box" class="Hui-article">
             <div class="show_iframe">
                 <div style="display:none" class="loading"></div>
-                <iframe scrolling="yes" frameborder="0" src="/manager/welcome"></iframe>
+                <iframe scrolling="yes" frameborder="0" src="/welcome"></iframe>
             </div>
         </div>
     </section>

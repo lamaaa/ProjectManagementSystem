@@ -1,4 +1,4 @@
-@extends('manager.master')
+@extends('admin.master')
 
 @section('content')
     <div class="page-container">
@@ -17,19 +17,22 @@
                 </div>
             </div>
             <div class="row cl">
+                <label class="form-label col-sm-2"><span class="c-red"></span>邮箱:</label>
+                <div class="formControls col-sm-6">
+                    <input id="input_email" type="text" class="input-text" value="">
+                </div>
+            </div>
+            <div class="row cl">
                 <label class="form-label col-sm-2"><span class="c-red"></span>角色:</label>
                 <div class="formControls col-sm-6 ">
                     <span class="select-box">
                         <select name="" class="select" id="select_role">
-                            <option value="管理员">管理员</option>
-                            <option value="项目经理">项目经理</option>
-                            <option value="工程师">工程师</option>
-                            <option value="设计师"> 设计师</option>
+                            <option value="admin">管理员</option>
+                            <option value="commonUser">普通用户</option>
                         </select>
                     </span>
                 </div>
             </div>
-
             <div class="row cl">
                 <label class="form-label col-sm-2"><span class="c-red"></span>密码:</label>
                 <div class="formControls col-sm-6">
@@ -59,14 +62,16 @@
 
         //重置密码
         function addAccountConfirm() {
-            var username = document.getElementById("input_username").value;
-            var name = document.getElementById('input_name').value;
+            var username = $('#input_username').val();
+            var name = $('#input_name').val();
             var role = $('#select_role option:selected').val();
-            var password = document.getElementById("input_password").value;
-            var password_confirm = document.getElementById("input_password_confirm").value;
+            var email = $('#input_email').val();
+            var password = $('#input_password').val();
+            var password_confirm = $('#input_password_confirm').val();
 
+            alert(username + name + role + email + password);
             if (username == '' || role == '' || password == ''
-                    || password_confirm == '' || name == '') {
+                    || password_confirm == '' || name == '' || email == '') {
                 alert('输入信息不完整！');
                 return;
             }
@@ -80,12 +85,13 @@
                 //ajax 请求
                 $.ajax({
                     type: 'post', // 提交方式 get/post
-                    url: 'account_add', // 需要提交的 url
+                    url: '/user', // 需要提交的 url
                     dataType: 'json',
                     data: {
                         username: username,
                         name: name,
                         role: role,
+                        email: email,
                         password: password,
                         _token: "{{csrf_token()}}"
                     },
@@ -98,7 +104,6 @@
                             layer.msg(data.message, {icon: 2, time: 2000});
                             return;
                         }
-
                         layer.msg(data.message, {icon: 1, time: 2000});
                         parent.location.reload();
                     },
