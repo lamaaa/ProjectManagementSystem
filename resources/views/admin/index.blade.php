@@ -12,6 +12,7 @@
     <aside class="Hui-aside">
         <input runat="server" id="divScrollValue" type="hidden" value=""/>
         <div class="menu_dropdown bk_2">
+            @role('admin')
             <dl id="menu-product">
                 <dt><i class="Hui-iconfont">&#xe637;</i> CRM<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
                 </dt>
@@ -22,6 +23,7 @@
                     </ul>
                 </dd>
             </dl>
+            @endrole
             <dl id="menu-order">
                 <dt><i class="Hui-iconfont">&#xe687;</i> Project<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
                 </dt>
@@ -38,7 +40,7 @@
                 </dt>
                 <dd>
                     <ul>
-                        <li><a _href="user" data-title="帐号管理" href="javascript:void(0)">管理成员帐号</a></li>
+                        <li><a _href="/user" data-title="帐号管理" href="javascript:void(0)">管理成员帐号</a></li>
                     </ul>
                 </dd>
             </dl>

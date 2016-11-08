@@ -67,6 +67,7 @@
             </form>
         </div>
     </div>
+    @include('errors.list')
     <div class="footer" style="background-color: black">Copyright <a href="https://github.com/lamaaa">@Lam</a></div>
 @endsection
 

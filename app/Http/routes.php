@@ -39,6 +39,7 @@ Route::get('/logout', 'Auth\AuthController@getLogout');
 //        Route::post('/customer_update', 'Manager\CustomerController@update');
 //    });
 //});
+
 Route::group(['middleware' => ['auth'],
             'namespace' => 'admin'],
             function(){

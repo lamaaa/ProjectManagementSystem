@@ -9,10 +9,13 @@
 namespace App\Http\Controllers\admin;
 
 
+use App\Role;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\M3Result;
+use App\Http\Requests\CreateUserRequest;
 
 class UserController extends Controller
 {
@@ -53,21 +56,29 @@ class UserController extends Controller
     }
 
     // 添加用户
-    public function store(Request $request)
+    public function store(CreateUserRequest $request)
     {
         // 写入用户表
-        User::create([
+        $user = User::create([
             'username' => $request->input('username'),
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'password' => bcrypt($request->input('password')),
         ]);
 
-        $m3_result = new M3Result();
-        $m3_result->status = 0;
-        $m3_result->message = '添加成功';
+        $role = $request->input('role', '');
 
-        return $m3_result->toJson();
+        if($role == 'admin')
+        {
+            $admin = Role::where('name', '=', 'admin')->first();
+            $user->attachRole($admin);
+        }
+        else if($role == 'commonUser')
+        {
+            $commonUser = Role::where('name', '=', 'common user')->first();
+            $user->attachRole($commonUser);
+        }
+        return redirect('/user');
     }
 
     public function toUpdatePassword(Request $request)

@@ -6,6 +6,15 @@
 ## 程序员
 
 # 模块
+## 登录模块
+url和对应的控制器方法：
+登录界面：/auth/login
+成功后跳转：/redirect
+判断登录用户拥有的身份：
+admin(超级管理员):/admin/index/
+pm(项目经理):/pm/index/
+commonUser（）
+
 
 ## 客户模块
 列出所有客户
@@ -213,23 +222,5 @@ delete /user/{user} UserController@destroy
 url和对应的控制器方法：
 
 get /user/{user} UserController@show
-
-<?php
-if ($user->isLogin()) {
-if($user->isCommonUser()){
-    $this->redirect("profile/index");
-}
-if($user->isPrivilegeUser()){
-    $this->redirect("privilege/index");
-}
-if($user->isAdmin()){
-    $this->redirect("admin/index");
-}
-}
-
-
-
-
-
 
 
