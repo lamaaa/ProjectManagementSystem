@@ -6,7 +6,7 @@
  * Time: 上午10:43
  */
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\admin\manager;
 
 
 use App\Entity\Customer;
@@ -24,7 +24,6 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $customers = Customer::all();
-        $pms = User::where('role', '=', '项目经理')->get();
         $project_sources = Project_source::all();
         $export = $request->input('export', '');
 
@@ -48,11 +47,10 @@ class CustomerController extends Controller
             $this->derivedExcel($customers);
         }
 
-        return view('manager.customer_list')
+        return view('admin.manager.customer_list')
             ->with('sort', $sort)
             ->with('filter_name', $filter_name)
             ->with('query_value', $request->get('value'))
-            ->with('pms', $pms)
             ->with('customers', $customers)
             ->with('project_sources', $project_sources);
     }

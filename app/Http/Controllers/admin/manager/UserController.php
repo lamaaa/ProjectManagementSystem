@@ -6,7 +6,7 @@
  * Time: 上午10:47
  */
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\admin\manager;
 
 
 use App\Role;
@@ -19,7 +19,7 @@ use App\Http\Requests\CreateUserRequest;
 
 class UserController extends Controller
 {
-    // 列出所有用户
+    // 列出所有成员
     public function index(Request $request)
     {
         $users = User::all();
@@ -30,7 +30,7 @@ class UserController extends Controller
         $sort = $request->input('sort', 'asc');
 
         // 拆分身份
-        // 区分超级管理员和普通用户
+        // 区分超级管理员和普通成员
         foreach ($users as $user)
         {
             if ($user->hasRole('admin'))
@@ -42,32 +42,33 @@ class UserController extends Controller
                 $commonUsers[] = $user;
             }
         }
-
-        return view('admin.users.user_index')
+        
+        return view('admin.manager.users.user_index')
             ->with('admins', $admins)
             ->with('commonUsers', $commonUsers)
             ->with('sort', $sort);
     }
 
-    // 添加用户表单
+    // 添加成员表单
     public function create()
     {
-        return view('admin.users.user_add');
+        return view('admin.manager.users.user_add');
     }
 
-    // 添加用户
+    // 添加成员
     public function store(CreateUserRequest $request)
     {
-        // 写入用户表
+        // 写入成员表
         $user = User::create([
             'username' => $request->input('username'),
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'password' => bcrypt($request->input('password')),
         ]);
-
+        
+        // 获取输入角色
         $role = $request->input('role', '');
-
+        
         if($role == 'admin')
         {
             $admin = Role::where('name', '=', 'admin')->first();
@@ -78,9 +79,25 @@ class UserController extends Controller
             $commonUser = Role::where('name', '=', 'common user')->first();
             $user->attachRole($commonUser);
         }
-        return redirect('/user');
+        
+        // 注册成功后返回user_index页面
+        return redirect('/manager/user');
     }
+    
+    // 删除成员
+    public function destroy($user_id)
+    {
+        // 删除用户表中数据
+        // 由于用Entrust提供的迁移命令生成的关联关系表中默认使用了onDelete('cascade')
+        // 以便父级记录被删除后会移除其对应的关联关系。
+        // 所以不用手动删除用户-角色映射表中数据
+        User::destroy($user_id);
 
+        // 删除用户拥有的角色（除去commonUser这个公共的）
+        
+
+    }
+    
     public function toUpdatePassword(Request $request)
     {
         $id = $request->input('id', '');

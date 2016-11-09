@@ -41,12 +41,33 @@ Route::get('/logout', 'Auth\AuthController@getLogout');
 //});
 
 Route::group(['middleware' => ['auth'],
-            'namespace' => 'admin'],
-            function(){
-                Route::get('/', 'IndexController@toIndex');
-                Route::get('/welcome', 'IndexController@toWelcome');
-                Route::resource('user', 'UserController');
-                Route::resource('customer', 'CustomerController');
+    'namespace' => 'admin'], function() {
+    Route::get('/', 'IndexController@toIndex');
+    Route::get('/welcome', 'IndexController@toWelcome');
 
-}
+    Route::group(['middleware' => ['role:admin'],
+        'namespace' => 'manager',
+        'prefix' => 'manager'], function () {
+        Route::resource('user', 'UserController');
+        Route::resource('customer', 'CustomerController');
+    });
+
+    Route::group(['middleware' => ['role:programmer'],
+        'namespace' => 'programmer',
+        'prefix' => 'programmer'], function () {
+
+    });
+
+    Route::group(['middleware' => ['role:designer'],
+        'namespace' => 'designer',
+        'prefix' => 'designer'], function () {
+
+    });
+
+    Route::group(['middleware' => ['role:commonUser'],
+        'namespace' => 'commonUser',
+        'prefix' => 'commonUser'], function () {
+
+    });
+    }
 );

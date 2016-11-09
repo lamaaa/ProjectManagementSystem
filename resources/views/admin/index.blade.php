@@ -12,20 +12,21 @@
     <aside class="Hui-aside">
         <input runat="server" id="divScrollValue" type="hidden" value=""/>
         <div class="menu_dropdown bk_2">
+            {{--拥有“admin”角色才能看到客户管理--}}
             @role('admin')
             <dl id="menu-product">
-                <dt><i class="Hui-iconfont">&#xe637;</i> CRM<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+                <dt><i class="Hui-iconfont">&#xe637;</i> 客户管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
                 </dt>
                 <dd>
                     <ul>
-                        <li><a _href="customer?reset=1" data-title="客户" href="javascript:void(0)">客户列表页</a></li>
+                        <li><a _href="/manager/customer?reset=1" data-title="客户" href="javascript:void(0)">客户列表页</a></li>
                         <li><a _href="statistics_crm" data-title="统计信息" href="javascript:void(0)">统计信息</a></li>
                     </ul>
                 </dd>
             </dl>
             @endrole
             <dl id="menu-order">
-                <dt><i class="Hui-iconfont">&#xe687;</i> Project<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+                <dt><i class="Hui-iconfont">&#xe687;</i> 项目管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
                 </dt>
                 <dd>
                     <ul>
@@ -40,7 +41,13 @@
                 </dt>
                 <dd>
                     <ul>
-                        <li><a _href="/user" data-title="帐号管理" href="javascript:void(0)">管理成员帐号</a></li>
+                        {{--不同的角色进入不同的帐号管理--}}
+                        @role('admin')
+                        <li><a _href="/manager/user" data-title="帐号管理" href="javascript:void(0)">管理成员帐号</a></li>
+                        @endrole
+                        @role('commonUser')
+                        <li><a _href="/commonUser/user" data-title="帐号管理" href="javascript:void(0)">管理成员帐号</a></li>
+                        @endrole
                     </ul>
                 </dd>
             </dl>

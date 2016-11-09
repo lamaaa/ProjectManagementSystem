@@ -26,13 +26,18 @@
                             <td>{{$admin->name}}</td>
                             <td>{{$admin->username}}</td>
                             <td>
-                                <a title="重置密码" href="javascript:;"
-                                   onclick="edit_password('重置密码','/manager/update_password?id={{$admin->id}}')" class="ml-5"
-                                   style="text-decoration:none;color: #0a6999">重置密码</a>
-                                <a title="" href="javascript:;"
-                                  onclick="delete_account('/manager/delete_account/?id={{$admin->id}}')"
-                                   class="ml-5"
-                                   style="text-decoration:none;color: #c00">删除帐号</a>
+                                <form action="/manager/user/{{$admin->id}}"
+                                      style="display:inline-block" method="POST">
+                                    {{ csrf_field() }}
+                                    <input type="hidden" name="_method" value="PUT">
+                                    <button class="btn btn-primary radius">重置密码</button>
+                                </form>
+                                <form action="/manager/user/{{$admin->id}}"
+                                      style="display:inline-block" method="POST">
+                                    {{ csrf_field() }}
+                                    {{ method_field('DELETE') }}
+                                    <button class="btn btn-danger radius">删除帐号</button>
+                                </form>
                             </td>
                         </tr>
                     @endforeach
@@ -59,13 +64,18 @@
                             <td>{{$commonUser->name}}</td>
                             <td>{{$commonUser->username}}</td>
                             <td>
-                                <a title="重置密码" href="javascript:;"
-                                   onclick="edit_password('重置密码','/manager/update_password?id={{$commonUser->id}}')" class="ml-5"
-                                   style="text-decoration:none;color: #0a6999">重置密码</a>
-                                <a title="" href="javascript:;"
-                                  onclick="delete_account('/manager/delete_account/?id={{$commonUser->id}}')"
-                                   class="ml-5"
-                                   style="text-decoration:none;color: #c00">删除帐号</a>
+                                <form action="/commonUser/user/{{$commonUser->id}}"
+                                        style="display:inline-block" method="POST">
+                                    {{ csrf_field() }}
+                                    <input type="hidden" name="_method" value="PUT">
+                                    <button class="btn btn-primary btn-xs radius">重置密码</button>
+                                </form>
+                                <form action="/commonUser/user/{{$commonUser->id}}"
+                                    style="display:inline-block" method="POST">
+                                    {{ csrf_field() }}
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button class="btn btn-danger btn-xs radius">删除帐号</button>
+                                </form>
                             </td>
                             </td>
                         </tr>
@@ -128,10 +138,12 @@
                 }
             });
         }
-        function delete_account(url) {
-            if (window.confirm('确认删除该账号？')) {
-                window.location.href= url;
+
+        function delete_confirm() {
+            if (!window.confirm('确认删除该账号？')) {
+                return false;
             }
+            return true;
         }
     </script>
 @endsection

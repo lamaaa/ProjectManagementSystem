@@ -3,7 +3,9 @@
 @section('content')
     <div class="page-container">
 
-        <form action="/user" method="post" class="form form-horizontal" id="form-order-edit" style="margin-top: 80px">
+        <form action="/manager/user" method="post" class="form form-horizontal"
+              id="form-order-edit" style="margin-top: 80px"
+                onsubmit="return addUserConfirm();">
             {{csrf_field()}}
             <div class="row cl" style="    margin-top: -43px;">
                 <label class="form-label col-sm-2"><span class="c-red"></span>用户名:</label>
@@ -58,4 +60,36 @@
         </form>
     </div>
 @endsection
+@section('my-js')
+    <script type="text/javascript">
 
+        // 输入确认
+        function addUserConfirm() {
+            var username = $("#input_username").val();
+            var role = $('#select_role option:selected').val();
+            var password = $("#input_password").val();
+            var password_confirm = $("#input_password_confirm").val();
+            var email = $("#input_email").val();
+
+            if (username == '' || role == '' || password == '' ||
+                    password_confirm == '' || email == '') {
+                alert('输入信息不完整！');
+                return false;
+            }
+
+            if (!(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]+$/.test(email))){
+                alert('请输入有效邮箱');
+                return false;
+            }
+
+            if (password != password_confirm) {
+                alert('两次密码不一致！');
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+    </script>
+@endsection

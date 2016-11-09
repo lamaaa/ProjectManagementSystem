@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\admin\manager;
 
 use App\Entity\Customer;
 use App\Entity\Project;
