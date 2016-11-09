@@ -29,7 +29,7 @@
                                 <form action="/manager/user/{{$admin->id}}"
                                       style="display:inline-block" method="POST">
                                     {{ csrf_field() }}
-                                    <input type="hidden" name="_method" value="PUT">
+                                    {{ method_field('PUT') }}
                                     <button class="btn btn-primary radius">重置密码</button>
                                 </form>
                                 <form action="/manager/user/{{$admin->id}}"

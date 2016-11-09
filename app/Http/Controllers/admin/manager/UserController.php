@@ -13,6 +13,7 @@ use App\Role;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\M3Result;
 use App\Http\Requests\CreateUserRequest;
@@ -87,15 +88,25 @@ class UserController extends Controller
     // 删除成员
     public function destroy($user_id)
     {
+        // 通过成员id找到该成员
+        $delete_user = User::findOrFail($user_id);
+
+        // 删除该成员拥有的所有角色（除了“admin”和“commonUser”）
+        foreach ($delete_user->roles as $role)
+        {
+            if ( $role->name != 'admin' && $role->name != 'commonUser')
+            {
+                $role->delete();
+            }
+        }
+
         // 删除用户表中数据
         // 由于用Entrust提供的迁移命令生成的关联关系表中默认使用了onDelete('cascade')
         // 以便父级记录被删除后会移除其对应的关联关系。
         // 所以不用手动删除用户-角色映射表中数据
         User::destroy($user_id);
 
-        // 删除用户拥有的角色（除去commonUser这个公共的）
-        
-
+        return redirect('/manager/user');
     }
     
     public function toUpdatePassword(Request $request)
