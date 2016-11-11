@@ -23,6 +23,6 @@ class IndexController extends Controller
 
     public function toWelcome()
     {
-        return view('welcome');
+        return view('admin.welcome');
     }
 }

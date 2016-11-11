@@ -9,14 +9,15 @@
 namespace App\Http\Controllers\admin\manager;
 
 
+use App\Http\Requests\UpdateUserPassword;
 use App\Role;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\M3Result;
 use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\UpdateUserPasswordRequest;
 
 class UserController extends Controller
 {
@@ -81,15 +82,17 @@ class UserController extends Controller
             $user->attachRole($commonUser);
         }
         
-        // 注册成功后返回user_index页面
-        return redirect('/manager/user');
+        $result = ['status' => 0,
+                    'message' => '添加成功'];
+
+        return $result;
     }
     
     // 删除成员
-    public function destroy($user_id)
+    public function destroy($id)
     {
         // 通过成员id找到该成员
-        $delete_user = User::findOrFail($user_id);
+        $delete_user = User::findOrFail($id);
 
         // 删除该成员拥有的所有角色（除了“admin”和“commonUser”）
         foreach ($delete_user->roles as $role)
@@ -104,20 +107,37 @@ class UserController extends Controller
         // 由于用Entrust提供的迁移命令生成的关联关系表中默认使用了onDelete('cascade')
         // 以便父级记录被删除后会移除其对应的关联关系。
         // 所以不用手动删除用户-角色映射表中数据
-        User::destroy($user_id);
+        User::destroy($id);
 
         return redirect('/manager/user');
     }
-    
-    public function toUpdatePassword(Request $request)
+
+    // 修改密码表单
+    public function edit($id)
     {
-        $id = $request->input('id', '');
-        $account = User::findOrFail($id);
-        return view('manager.account_edit')
-            ->with('account', $account);
+        $user = User::findOrFail($id);
+
+        return view('admin.manager.users.user_edit')
+            ->with('user', $user);
     }
 
-    public function updatePassword(Request $request)
+    // 重置密码
+    public function update(Request $request)
+    {
+        $id = $request->input('id');
+        $password = $request->input('password');
+
+        $user = User::findOrFail($id);
+        $user->password = $password;
+        $user->save();
+
+        $result = ['status' => 0,
+                    'messages' => '重置成功'];
+
+        return $result;
+    }
+
+    public function updatePassword(UpdateUserPasswordRequest $request)
     {
         $id = $request->input('id', '');
         $password = $request->input('password', '');

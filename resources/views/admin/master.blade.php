@@ -20,8 +20,11 @@
     <link href="/css/H-ui.admin.css" rel="stylesheet" type="text/css"/>
     <link href="/lib/Hui-iconfont/1.0.6/iconfont.css" rel="stylesheet" type="text/css"/>
     <link href="/css/style.css" rel="stylesheet" type="text/css"/>
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    {{--<link rel="stylesheet" href="/css/bootstrap.min.css">--}}
+    {{-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300"> --}}
+    <link rel="stylesheet" href="/css/pure-min.css">
+    <link rel="stylesheet" href="/lib/tagEditor/jquery.tag-editor.css">
+    <link rel="stylesheet" href="/css/jcDate.min.css">
     <!--[if IE 6]>
     <script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js"></script>
     <script>DD_belatedPNG.fix('*');</script>
@@ -31,14 +34,11 @@
     <meta name="description" content="">
 </head>
 <body>
-<style>
-    body {
-        font-weight: bold;
-    }
-</style>
 @yield('content')
+
 <script type="text/javascript" src="/lib/jquery/1.9.1/jquery.min.js"></script>
-<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://validform.rjboy.cn/Validform/v5.1/Validform_v5.1_min.js"></script>
+<script type="text/javascript" src="/js/validator.min.js"></script>
 <script type="text/javascript" src="/js/jquery.form.js"></script>
 <script type="text/javascript" src="/js/uploadFile.js"></script>
 <script type="text/javascript" src="/lib/layer/2.1/layer.js"></script>
@@ -48,6 +48,11 @@
 <script type="text/javascript" src="/lib/ueditor/1.4.3/ueditor.config.js"></script>
 <script type="text/javascript" src="/lib/ueditor/1.4.3/ueditor.all.min.js"></script>
 <script type="text/javascript" src="/lib/ueditor/1.4.3/lang/zh-cn/zh-cn.js"></script>
+<script type="text/javascript" src="/js/jQuery-jcDate.min.js"></script>
+<script type="text/javascript" src="/lib/tagEditor/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/lib/tagEditor/jquery.caret.min.js"></script>
+<script type="text/javascript" src="/lib/tagEditor/jquery.tag-editor.js"></script>
+
 @yield('my-js')
 </body>
 </html>

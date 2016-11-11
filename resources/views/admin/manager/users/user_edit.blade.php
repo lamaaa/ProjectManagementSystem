@@ -1,40 +1,42 @@
-@extends('manager.master')
+@extends('admin.master')
 
 @section('content')
 
 <div class="page-container">
-    <form action="" method="post" class="form form-horizontal" id="form-account-edit"
+    <form action="" method="post" class="form form-horizontal" id="form-user-edit"
           style="margin-top: 80px">
-        <input type="hidden" name="account_id_input" value="{{$account->id}}">
+        <input type="hidden" name="user_id_input" value="{{$user->id}}">
         <div class="row cl" style="margin-top: -43px;">
             <label class="form-label col-sm-2"><span class="c-red"></span>昵称:</label>
             <div class="formControls col-sm-6">
-                <input type="text" class="input-text" name="account_name_input" value="{{$account->name}}" readonly>
+                <input type="text" class="input-text" name="user_name_input" value="{{$user->name}}" readonly>
             </div>
         </div>
         <div class="row cl" style="">
             <label class="form-label col-sm-2"><span class="c-red"></span>用户名:</label>
             <div class="formControls col-sm-6">
-                <input type="text" class="input-text" value="{{$account->username}}" readonly>
+                <input type="text" class="input-text" value="{{$user->username}}" readonly>
             </div>
         </div>
         <div class="row cl">
             <label class="form-label col-sm-2"><span class="c-red"></span>新密码:</label>
             <div class="formControls col-sm-6">
-                <input id="input_password" name="account_password_input" type="password" class="input-text" value="">
+                <input id="input_password" name="password" type="password" class="input-text">
             </div>
         </div>
         <div class="row cl">
             <label class="form-label col-sm-2"><span class="c-red"></span>确认新密码:</label>
             <div class="formControls col-sm-6">
-                <input id="input_password_confirm" type="password" class="input-text" value="">
+                <input id="input_password_confirmation" name="password_confirmation" type="password" class="input-text">
             </div>
         </div>
+        <br>
+        <div id="form-errors"></div>
     </form>
     <div class="row cl">
         <div class="col-sm-8 col-sm-offset-2">
             <button class="btn btn-danger radius ml-5 mt-15"
-                    onclick="resetPass();">重置密码
+                    onclick="resetPassword();">重置密码
             </button>
         </div>
     </div>
@@ -46,21 +48,20 @@
 <script type="text/javascript">
 
     //重置密码
-    function resetPass() {
-        var new_password = document.getElementById("input_password").value;
-        var password_confirm = document.getElementById("input_password_confirm").value;
+    function resetPassword() {
+        var password = $("#input_password").val();
+        var password_confirmation = $("#input_password_confirmation").val();
 
-        if (new_password != "" && new_password == password_confirm) {
-
-            $('#form-account-edit').ajaxSubmit({
-                type: 'post', // 提交方式 post
-                url: 'update_password', // 需要提交的 url
+        if (password != "" && password == password_confirmation) {
+            $('#form-user-edit').ajaxSubmit({
+                type: 'put', // 提交方式 post
+                url: '/manager/user/{{$user->id}}', // 需要提交的 url
                 dataType: 'json',
                 data: {
                     id: $('input[name=account_id_input]').val(),
-                    name: $('input[name=account_name_input]').val(),
-                    password: $('input[name=account_password_input]').val(),
-                    _token: "{{csrf_token()}}"
+                    password: password,
+                    password_confimation: password_confirmation,
+                    _token: "{{csrf_token()}}",
                 },
 
                 success: function (data) {
@@ -85,12 +86,21 @@
 
                     }, 1000);
                 },
-                error: function (xhr, status, error) {
-                    console.log(xhr);
-                    console.log(status);
-                    console.log(error);
-                    layer.msg('ajax error', {icon: 2, time: 2000});
-                },
+                error: function(data) {
+                    if( data.status === 422 ) {
+                        //process validation errors here.
+                        var errors = errors = $.parseJSON(data.responseText); //this will get the errors response data.
+
+                        errorsHtml = '<div class="alert alert-danger"><ul>';
+
+                        $.each( errors, function( key, value ) {
+                            errorsHtml += '<li>' + value[0] + '</li><br>'; //showing only the first error.
+                        });
+                        errorsHtml += '</ul></div>';
+
+                        $( '#form-errors' ).html( errorsHtml ); //appending to a <div id="form-errors"></div> inside form
+                    }
+                }
             });
 
         } else {
