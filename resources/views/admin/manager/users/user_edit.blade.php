@@ -53,14 +53,14 @@
         var password_confirmation = $("#input_password_confirmation").val();
 
         if (password != "" && password == password_confirmation) {
-            $('#form-user-edit').ajaxSubmit({
+            $.ajax({
                 type: 'put', // 提交方式 post
                 url: '/manager/user/{{$user->id}}', // 需要提交的 url
                 dataType: 'json',
                 data: {
-                    id: $('input[name=account_id_input]').val(),
+                    id: $('input[name=user_id_input]').val(),
                     password: password,
-                    password_confimation: password_confirmation,
+                    password_confirmation: password_confirmation,
                     _token: "{{csrf_token()}}",
                 },
 

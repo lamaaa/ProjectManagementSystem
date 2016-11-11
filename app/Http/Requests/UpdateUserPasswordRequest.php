@@ -24,6 +24,7 @@ class UpdateUserPasswordRequest extends Request
     public function rules()
     {
         return [
+            'id' => 'required',
             'password' => 'required|confirmed|min:6',
         ];
     }
@@ -31,6 +32,7 @@ class UpdateUserPasswordRequest extends Request
     public function messages()
     {
         return [
+            'id.required' => '不要乱来哦',
             'password.required' => '请填写密码',
             'password.confirmed' => '两次密码不一致',
             'password.min' => '密码长度最少为6位',

@@ -15,7 +15,6 @@ use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\M3Result;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserPasswordRequest;
 
@@ -122,17 +121,17 @@ class UserController extends Controller
     }
 
     // 重置密码
-    public function update(Request $request)
+    public function update(UpdateUserPasswordRequest $request)
     {
         $id = $request->input('id');
         $password = $request->input('password');
 
         $user = User::findOrFail($id);
-        $user->password = $password;
+        $user->password = bcrypt($password);
         $user->save();
 
         $result = ['status' => 0,
-                    'messages' => '重置成功'];
+            'message' => '添加成功'];
 
         return $result;
     }
