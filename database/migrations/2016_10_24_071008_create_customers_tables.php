@@ -21,11 +21,11 @@ class CreateCustomersTable extends Migration
             $table->string('phone');
             $table->text('description');
             $table->text('source');
-            $table->string('principal');
             $table->text('status');
             $table->integer('priority');
         });
     }
+
 
     /**
      * Reverse the migrations.

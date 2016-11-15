@@ -13,14 +13,17 @@ use App\Entity\Customer;
 use App\Entity\Project_source;
 use App\Entity\User;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateCustomerRequest;
 use App\Models\M3Result;
 use Illuminate\Http\Request;
+use App\Role;
 use DB;
 use Carbon\Carbon;
 use Excel;
 
 class CustomerController extends Controller
 {
+    // 列出所有客户
     public function index(Request $request)
     {
         $customers = Customer::all();
@@ -47,14 +50,15 @@ class CustomerController extends Controller
             $this->derivedExcel($customers);
         }
 
-        return view('admin.manager.customer_list')
+        return view('admin.manager.customers.customer_index')
             ->with('sort', $sort)
             ->with('filter_name', $filter_name)
             ->with('query_value', $request->get('value'))
             ->with('customers', $customers)
             ->with('project_sources', $project_sources);
     }
-    
+
+    // 客户排序
     public function sortWith($sort, $col, $filter_name, $filter_value)
     {
         if($sort == "desc")
@@ -80,6 +84,7 @@ class CustomerController extends Controller
         }
     }
 
+    // 导出Excel表
     public function derivedExcel($customers)
     {
         $data = array();
@@ -108,31 +113,47 @@ class CustomerController extends Controller
         })->export('xls');
     }
 
-    public function toAdd()
+    // 增加客户表单
+    public function create()
     {
-        // 获取所有项目经理
-        $pms = User::where('role', '=', '项目经理')->get();
-        // 获取所有项目来源
         $project_sources = Project_source::all();
+        $users = \App\User::all();
 
-        return view('manager.customer_add')
-            ->with('pms', $pms)
-            ->with('project_sources', $project_sources);
+        return view('admin.manager.customers.customer_add')
+            ->with('project_sources', $project_sources)
+            ->with('users', $users);
     }
 
-    public function add(Request $request)
+    public function store(CreateCustomerRequest $request)
     {
-        // 增加一条客户记录
+        // 增加客户
         Customer::create($request->all());
+        // 增加来源
         // 若项目来源表中没有新增项目来源，则增加一条记录
-        Project_source::firstOrCreate(['source' => $request->input('source', '')]);
+        Project_source::firstOrCreate(['source' => $request->input('source')]);
+        // 赋予客户经理经理给选中的用户
+        $customerManagers = $request->input('customerManagers');
+        dd($customerManagers);
+        foreach ($customerManagers as $customerManager)
+        {
+            $customerManagerRole = Role::where('name', '=', 'projectManager')->first();
 
-        // ajax
-        $m3_result = new M3Result();
-        $m3_result->status = 0;
-        $m3_result->message = '添加成功';
+            // 赋予一个普通的客户经理角色可以看到“客户管理界面”
+            $user = User::where('name', '=', $customerManager);
+            $user->attachRole($customerManagerRole);
 
-        return $m3_result->toJson();
+            // 赋予一个该客户的客户经理角色可以看到对应的客户
+            $customer = $request->input('name');
+            $thisCustomerManager = new Role();
+            $thisCustomerManager->name = $customer . '客户经理';
+            $thisCustomerManager->display_name = '负责' . $customer . '的客户经理';
+            $thisCustomerManager->save();
+        }
+
+        $result['status'] = 0;
+        $result['message'] = '添加成功';
+
+        return $result;
     }
 
     public function delete(Request $request)

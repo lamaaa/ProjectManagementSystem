@@ -1,4 +1,4 @@
-@extends('master')
+@extends('admin.manager.master')
 <link rel="stylesheet" href="{{asset('/css/validform.css')}}">
 @section('content')
     <div class="page-container">

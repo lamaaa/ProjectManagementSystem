@@ -1,4 +1,4 @@
-@extends('master')
+@extends('admin.manager.master')
 <link rel="stylesheet" href="{{asset('/css/validform.css')}}">
 @section('content')
     <div class="page-container">
@@ -34,20 +34,21 @@
                 </div>
                 <div class="Validform_checktip"></div>
             </div>
+
             <div class="row cl" style="height: 38px">
-                <label class="form-label col-sm-2"><span class="c-red"></span>项目经理:</label>
+                <label class="form-label col-sm-2"><span class="c-red"></span>客户经理:</label>
                 <div class="formControls col-sm-4">
-                    <select name="principal" class="select" id="" datatype="*">
-                        <option value="请选择">请选择</option>
-                        @foreach($pms as $pm)
-                            <option value="{{$pm->name}}">
-                                {{$pm->name}}
-                            </option>
-                        @endforeach
-                    </select>
+                    {{--超级管理员不作为客户经理的候选项--}}
+                    @foreach($users as $user)
+                        @if ($user->hasRole('commonUser'))
+                        <input type="checkbox" name="customerManagers" value="{{$user->name}}">
+                            {{$user->name}}&nbsp&nbsp&nbsp
+                        @endif
+                    @endforeach
                 </div>
                 <div class="Validform_checktip"></div>
             </div>
+
             <div class="row cl" style="height: 38px">
                 <label class="form-label col-sm-2"><span class="c-red"></span>来源:</label>
                 <div class="formControls col-sm-4">
@@ -63,11 +64,13 @@
                         @endforeach
                         <option value="other" id="other">其他(自定义)</option>
                     </select>
-                    <input id="customer_input_source" name="customer_input_source" type="text" value=""
-                           style="display: none">
+                            <input id="customer_input_source" type="text" value="" name="customer_input_source"
+                                   class="input-text" datatype="*" style="display: none;">
+                    <div class="Validform_checktip"></div>
                 </div>
                 <div class="Validform_checktip"></div>
             </div>
+
             <div class="row cl" style="height: 38px">
                 <label class="form-label col-sm-2"><span class="c-red"></span>状态：</label>
                 <div class="formControls col-sm-4">
@@ -105,6 +108,8 @@
                 </button>
             </div>
         </div>
+        <br>
+        <div id="form-errors"></div>
     </div>
 @endsection
 @section('my-js')
@@ -117,49 +122,46 @@
             // 如果其他（自定义）选项被选中，将生成空白输入框
             if($('#other').is(':selected'))
             {
-                $('#customer_input_source').tagEditor({
-                    autocomplete:{
-                        delay: 0,
-                        position: {collision: 'flip'}
-                    },
-                    maxTags: 1,
-                    forceLowercase: false,
-                    placeholder: ''
-                });
+                $('#customer_input_source').show();
             }
             // 否则隐藏
             else
             {
-                $('.tag-editor').hide();
+                $('#customer_input_source').hide();
             }
         }
 
         function add_customer_query()
         {
             var source = $('#select_source option:selected').val();
+            var status = $('select[name=status] option:selected').val();
+            var priority = $('select[name=priority] option:selected').val();
+            var name = $('input[name=name]').val();
+            var company = $('input[name=company]').val();
+            var phone = $('input[name=phone]').val();
+            var description = $('input[name=description]').val();
+
+            // 获取项目经理
+            var customerManagers = new Array();
+            $('input[name=customerManagers]:checked').each(function(){
+                customerManagers.push(this.value);
+            });
+
+            // 获取来源
             if(source == 'other')
             {
                 source = $('input[name=customer_input_source]').val();
             }
-            if ($('input[name=name]').val() == "" ||
-                    $('input[name=company]').val() == "" ||
-                    $('input[name=phone]').val() == "" ||
-                    $('textarea[name=description]').val() == "" ||
-                    $('input[name=principal]').val() == "" ||
-                    $('input[name=status]').val() == "" ||
-                    $('input[name=priority]').val() == ""
+
+            if (name == "" || company == "" || phone == "" ||
+                     status == "" || priority == ""
             )
             {
                 alert("对不起,信息没有填写完整");
                 return;
             }
 
-            var principal = $('select[name=principal] option:selected').val();
-            var status = $('select[name=status] option:selected').val();
-            var priority = $('select[name=priority] option:selected').val();
-
-            if (principal == "请选择" ||
-                    status == "请选择" ||
+            if (status == "请选择" ||
                     priority == "请选择" ||
                     source == "请选择")
             {
@@ -168,16 +170,16 @@
             }
 
             $('#form-customer-add').ajaxSubmit({
-                type: 'post', // 提交方式 get/post
-                url: '/manager/customer_add', // 需要提交的 url
+                type: 'POST', // 提交方式 get/post
+                url: '/manager/customer', // 需要提交的 url
                 dataType: 'json',
                 data: {
-                    name: $('input[name=name]').val(),
-                    company: $('input[name=company]').val(),
-                    phone: $('input[name=phone]').val(),
-                    description: $('input[name=description]').val(),
+                    name: name,
+                    company: company,
+                    phone: phone,
+                    description: description,
                     source: source,
-                    principal: principal,
+                    customerManagers: customerManagers,
                     status: status,
                     priority: priority,
                     _token: "{{csrf_token()}}"
@@ -194,14 +196,22 @@
                     layer.msg(data.message, {icon: 1, time: 2000});
                     parent.location.reload();
                 },
-                error: function (xhr, status, error) {
-                    console.log(xhr);
-                    console.log(status);
-                    console.log(error);
-                    layer.msg('ajax error', {icon: 2, time: 2000});
-                },
-            });
+                error: function (data) {
+                    if( data.status === 422 ) {
+                        //process validation errors here.
+                        var errors = errors = $.parseJSON(data.responseText); //this will get the errors response data.
 
+                        errorsHtml = '<div class="alert alert-danger"><ul>';
+
+                        $.each( errors, function( key, value ) {
+                            errorsHtml += '<li>' + value[0] + '</li><br>'; //showing only the first error.
+                        });
+                        errorsHtml += '</ul></div>';
+
+                        $( '#form-errors' ).html( errorsHtml ); //appending to a <div id="form-errors"></div> inside form
+                    }
+                }
+            });
         }
     </script>
 @endsection

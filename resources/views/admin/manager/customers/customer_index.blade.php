@@ -1,10 +1,10 @@
-@extends('master')
+@extends('admin.manager.master')
 
 @section('content')
     <div class="page-container">
         <div class="cl pd-5 bg-1 bk-gray mb-20">
             <span class="l">
-            <a href="javascript:;" onclick="customer_add('添加客户','/manager/customer_add')" class="btn btn-success radius"><i
+            <a href="javascript:;" onclick="customer_add('/manager/customer/create')" class="btn btn-success radius"><i
                         class="Hui-iconfont">&#xe600;</i> 添加客户</a>
             <a href="javascript:;" onclick="export_excel_all_customers()"
                class="btn btn-primary radius">导出列表(Excel)</a>
@@ -46,11 +46,11 @@
                 <div id="value_principal" class=""
                      style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'principal') display: block; @else display:none; @endif">
                     <select name="" id="value_principal_select" class="select" style="width: 160px;margin-left: 15px">
-                        @foreach($pms as $pm)
-                            <option value="{{$pm->name}}" @if ($query_value == $pm->name) selected="selected" @endif>
-                                {{$pm->name}}
-                            </option>
-                        @endforeach
+                        {{--@foreach($pms as $pm)--}}
+                            {{--<option value="{{$pm->name}}" @if ($query_value == $pm->name) selected="selected" @endif>--}}
+                                {{--{{$pm->name}}--}}
+                            {{--</option>--}}
+                        {{--@endforeach--}}
                     </select>
                 </div>
                 {{--项目来源--}}
@@ -70,7 +70,7 @@
 
                 <a href="javascript:;" onclick="query_customer('query')" class="btn btn-success" id='start_query'
                    style="margin-left: 10px">查询</a>
-                <a href="javascript:;" class="btn" id='reset_query'
+                <a href="javascript:;" class="btn btn-primary" id='reset_query'
                    style="margin-left: 10px">重置</a>
             </div>
             <div id="sort_mark" hidden>{{$sort}}</div>
@@ -80,16 +80,12 @@
         <table class="table table-border table-bordered table-hover table-bg table-sort">
             <thead>
             <tr class="text-c">
-                <th width="40" onclick="sort('id');">ID
-                    <i
-                            class="Hui-iconfont"
+                <th width="55" onclick="sort('id');">ID<i class="Hui-iconfont"
                             style="margin-left: 6px;cursor: pointer">
-                        &#xe675;</i>
-                </th>
+                        &#xe675;</i></th>
                 <th width="">客户名称</th>
                 <th width="">客户公司</th>
                 <th width="">联系方式</th>
-                <th width="200">介绍</th>
                 <th width="">来源</th>
                 {{--//这里要使用 tag--}}
                 <th width="">负责人</th>
@@ -269,10 +265,10 @@
 
         }
 
-        function customer_add(title, url) {
+        function customer_add(url) {
             var index = layer.open({
                 type: 2,
-                title: title,
+                title: '添加客户',
                 content: url,
                 area: ['100%', '100%']
             });

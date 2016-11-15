@@ -8,13 +8,10 @@
 
 namespace App\Http\Controllers\admin\manager;
 
-
-use App\Http\Requests\UpdateUserPassword;
 use App\Role;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserPasswordRequest;
 
@@ -72,17 +69,17 @@ class UserController extends Controller
         
         if($role == 'admin')
         {
-            $admin = Role::where('name', '=', 'admin')->first();
-            $user->attachRole($admin);
+            $adminRole = Role::where('name', '=', 'admin')->first();
+            $user->attachRole($adminRole);
         }
         else if($role == 'commonUser')
         {
-            $commonUser = Role::where('name', '=', 'common user')->first();
-            $user->attachRole($commonUser);
+            $commonUserRole = Role::where('name', '=', 'commonUser')->first();
+            $user->attachRole($commonUserRole);
         }
-        
-        $result = ['status' => 0,
-                    'message' => '添加成功'];
+
+        $result['status'] = 0;
+        $result['message'] = '添加成功';
 
         return $result;
     }
@@ -130,33 +127,9 @@ class UserController extends Controller
         $user->password = bcrypt($password);
         $user->save();
 
-        $result = ['status' => 0,
-            'message' => '添加成功'];
+        $result['status'] = 0;
+        $result['message'] = '添加成功';
 
         return $result;
-    }
-
-    public function updatePassword(UpdateUserPasswordRequest $request)
-    {
-        $id = $request->input('id', '');
-        $password = $request->input('password', '');
-
-        $account = User::findOrFail($id);
-        $account->password = $password;
-        $account->save();
-
-        $m3_result = new M3Result();
-        $m3_result->status = 0;
-        $m3_result->message = '重置成功';
-
-        return $m3_result->toJson();
-    }
-
-    public function delete(Request $request)
-    {
-        $id = $request->input('id', '');
-        DB::table('users')->where('id', '=', $id)->delete();
-
-        return redirect('manager/account_manage');
     }
 }
