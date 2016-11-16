@@ -16,8 +16,8 @@
                             style="width: 60%;margin-left: 15px;margin-top: -23px;float: left;margin-left: 100px;">
                         <option value="name" @if ($filter_name === 'name') selected="selected" @endif>客户名称</option>
                         <option value="status" @if ($filter_name === 'status') selected="selected" @endif>状态</option>
-                        <option value="principal" @if ($filter_name === 'principal') selected="selected" @endif>负责人</option>
-                        <option value="source" @if ($filter_name === 'source') selected="selected" @endif>来源</option>
+                        <option value="principal" @if ($filter_name === 'customerManagers') selected="selected" @endif>客户经理</option>
+                        {{--<option value="source" @if ($filter_name === 'source') selected="selected" @endif>来源</option>--}}
                         <option value="priority" @if ($filter_name === 'priority') selected="selected" @endif>优先级</option>
                     </select>
                 </div>
