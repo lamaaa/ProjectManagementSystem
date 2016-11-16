@@ -87,7 +87,6 @@
                 <th width="">客户公司</th>
                 <th width="">联系方式</th>
                 <th width="">来源</th>
-                {{--//这里要使用 tag--}}
                 <th width="">负责人</th>
                 <th width="">状态</th>
                 <th width="90" onclick="sort('created_at');">添加时间<i class="Hui-iconfont"

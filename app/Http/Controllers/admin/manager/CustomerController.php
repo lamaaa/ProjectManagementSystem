@@ -137,20 +137,24 @@ class CustomerController extends Controller
         $customerManagers = $request->input('customerManagers');
         $customerManagerRole = Role::where('name', '=', 'customerManager')->first();
 
+        // 创造一个改客户的客户经理角色可以看到对应的客户
+
+        // 取得客户姓名
+        $customer_name = $request->input('name');
+        // 取得该客户的id
+        $customer_id = Customer::where('name', '=', $customer_name)->max('id');
+        // 该角色的name为该客户的id + 该客户的名字 + “客户经理”
+        $thisCustomerManagerRole = new Role();
+        $thisCustomerManagerRole->name = $customer_id . $customer_name . '客户经理';
+        $thisCustomerManagerRole->display_name = '负责' . $customer_id . $customer_name . '的客户经理';
+        $thisCustomerManagerRole->description = "对客户" . $customer_id . $customer_name . "负责";
+        $thisCustomerManagerRole->save();
         foreach ($customerManagers as $customerManager)
         {
             // 赋予一个普通的客户经理角色可以看到“客户管理界面”
             $user = User::where('name', '=', $customerManager)->first();
             $user->attachRole($customerManagerRole);
-
             // 赋予一个该客户的客户经理角色可以看到对应的客户
-            $customer = $request->input('name');
-            $thisCustomerManagerRole = new Role();
-            $thisCustomerManagerRole->name = $customer . '客户经理';
-            $thisCustomerManagerRole->display_name = '负责' . $customer . '的客户经理';
-            $thisCustomerManagerRole->description = "对客户" . $customer . "负责";
-            $thisCustomerManagerRole->save();
-
             $user->attachRole($thisCustomerManagerRole);
         }
 
