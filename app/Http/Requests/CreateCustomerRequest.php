@@ -30,6 +30,7 @@ class CreateCustomerRequest extends Request
             'source' => 'required',
             'status' => 'required',
             'priority' => 'required|digits:1',
+            'customerManagers' => 'required',
         ];
     }
 
@@ -44,6 +45,7 @@ class CreateCustomerRequest extends Request
             'status.required' => '请选择进度',
             'priority.required' => '请选择优先级',
             'priority.digits' => '请选择优先级',
+            'customerManagers.required' => '请选择客户经理',
         ];
     }
 }

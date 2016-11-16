@@ -11,15 +11,17 @@ namespace App\Http\Controllers\admin\manager;
 
 use App\Entity\Customer;
 use App\Entity\Project_source;
-use App\Entity\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateCustomerRequest;
 use App\Models\M3Result;
 use Illuminate\Http\Request;
 use App\Role;
+use App\User;
 use DB;
 use Carbon\Carbon;
 use Excel;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {
@@ -133,25 +135,28 @@ class CustomerController extends Controller
         Project_source::firstOrCreate(['source' => $request->input('source')]);
         // 赋予客户经理经理给选中的用户
         $customerManagers = $request->input('customerManagers');
-        dd($customerManagers);
+        $customerManagerRole = Role::where('name', '=', 'customerManager')->first();
+
         foreach ($customerManagers as $customerManager)
         {
-            $customerManagerRole = Role::where('name', '=', 'projectManager')->first();
-
             // 赋予一个普通的客户经理角色可以看到“客户管理界面”
-            $user = User::where('name', '=', $customerManager);
+            $user = User::where('name', '=', $customerManager)->first();
             $user->attachRole($customerManagerRole);
 
             // 赋予一个该客户的客户经理角色可以看到对应的客户
             $customer = $request->input('name');
-            $thisCustomerManager = new Role();
-            $thisCustomerManager->name = $customer . '客户经理';
-            $thisCustomerManager->display_name = '负责' . $customer . '的客户经理';
-            $thisCustomerManager->save();
+            $thisCustomerManagerRole = new Role();
+            $thisCustomerManagerRole->name = $customer . '客户经理';
+            $thisCustomerManagerRole->display_name = '负责' . $customer . '的客户经理';
+            $thisCustomerManagerRole->description = "对客户" . $customer . "负责";
+            $thisCustomerManagerRole->save();
+
+            $user->attachRole($thisCustomerManagerRole);
         }
 
         $result['status'] = 0;
         $result['message'] = '添加成功';
+        $result['data'] = $customerManagers;
 
         return $result;
     }
