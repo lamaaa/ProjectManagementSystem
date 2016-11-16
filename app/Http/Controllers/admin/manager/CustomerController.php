@@ -29,7 +29,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $customers = Customer::all();
-        $project_sources = Project_source::all();
+        //$project_sources = Project_source::all();
         $export = $request->input('export', '');
 
         // 获取作为排序的列和顺序
@@ -56,8 +56,8 @@ class CustomerController extends Controller
             ->with('sort', $sort)
             ->with('filter_name', $filter_name)
             ->with('query_value', $request->get('value'))
-            ->with('customers', $customers)
-            ->with('project_sources', $project_sources);
+            ->with('customers', $customers);
+            //->with('project_sources', $project_sources)
     }
 
     // 客户排序

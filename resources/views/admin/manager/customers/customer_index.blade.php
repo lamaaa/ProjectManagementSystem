@@ -54,14 +54,14 @@
                     </select>
                 </div>
                 {{--项目来源--}}
-                <div id="value_source" class=""
-                     style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'source') display: block; @else display:none; @endif">
-                    <select name="" id="value_source_select" class="select" style="width: 160px;margin-left: 15px">
-                        @foreach($project_sources as $project_source)
-                                <option value="{{$project_source->source}}" @if ($query_value == $project_source->source) selected="selected" @endif>{{$project_source->source}}</option>
-                        @endforeach
-                    </select>
-                </div>
+                {{--<div id="value_source" class=""--}}
+                     {{--style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'source') display: block; @else display:none; @endif">--}}
+                    {{--<select name="" id="value_source_select" class="select" style="width: 160px;margin-left: 15px">--}}
+                        {{--@foreach($project_sources as $project_source)--}}
+                                {{--<option value="{{$project_source->source}}" @if ($query_value == $project_source->source) selected="selected" @endif>{{$project_source->source}}</option>--}}
+                        {{--@endforeach--}}
+                    {{--</select>--}}
+                {{--</div>--}}
                 {{--输入文本--}}
                 <div id="value_text" class="" style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name !== 'name') display: none; @endif">
                     <input type="text" class="input input-text" style="width: 160px;margin-left: 15px" value="{{ $filter_name == 'name' && $query_value ? $query_value : '' }}"
@@ -86,8 +86,8 @@
                 <th width="">客户名称</th>
                 <th width="">客户公司</th>
                 <th width="">联系方式</th>
-                <th width="">来源</th>
-                <th width="">负责人</th>
+                {{--<th width="">来源</th>--}}
+                <th width="">客户经理</th>
                 <th width="">状态</th>
                 <th width="90" onclick="sort('created_at');">添加时间<i class="Hui-iconfont"
                                                              style="margin-left: 6px;cursor: pointer">
@@ -110,10 +110,9 @@
                     </td>
                     <td>{{$customer->company}}</td>
                     <td>{{$customer->phone}}</td>
-                    <td style="white-space: pre-wrap;text-align: left">{{$customer->description}}</td>
-                    <td>
-                        <div class="label label-primary radius">{{$customer->source}}</div>
-                    </td>
+                    {{--<td>--}}
+                        {{--<div class="label label-primary radius">{{$customer->source}}</div>--}}
+                    {{--</td>--}}
                     <td>
                         <div class="label label-secondary radius">{{$customer->principal}}</div>
                     </td>
