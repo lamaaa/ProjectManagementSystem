@@ -16,8 +16,7 @@
                             style="width: 60%;margin-left: 15px;margin-top: -23px;float: left;margin-left: 100px;">
                         <option value="name" @if ($filter_name === 'name') selected="selected" @endif>客户名称</option>
                         <option value="status" @if ($filter_name === 'status') selected="selected" @endif>状态</option>
-                        <option value="customerManagers" @if ($filter_name === 'customerManagers') selected="selected" @endif>客户经理</option>
-                        {{--<option value="source" @if ($filter_name === 'source') selected="selected" @endif>来源</option>--}}
+                        <option value="customerManager" @if ($filter_name === 'customerManager') selected="selected" @endif>客户经理</option>
                         <option value="priority" @if ($filter_name === 'priority') selected="selected" @endif>优先级</option>
                     </select>
                 </div>
@@ -43,26 +42,16 @@
                     </select>
                 </div>
                 {{--项目经理--}}
-                <div id="value_customerManagers" class=""
-                     style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'customerManagers') display: block; @else display:none; @endif">
-                    <select name="" id="value_customerManagers_select" class="select" style="width: 160px;margin-left: 15px">
-                        {{--@foreach($pms as $pm)--}}
-                            {{--<option value="{{$pm->name}}" @if ($query_value == $pm->name) selected="selected" @endif>--}}
-                                {{--{{$pm->name}}--}}
-                            {{--</option>--}}
-                        {{--@endforeach--}}
+                <div id="value_customerManager" class=""
+                     style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'customerManager') display: block; @else display:none; @endif">
+                    <select name="" id="value_customerManager_select" class="select" style="width: 160px;margin-left: 15px">
+                        @foreach($customerManagers as $customerManager)
+                            <option value="{{$customerManager->id}}" @if ($query_value == $customerManager->name) selected="selected" @endif>
+                                {{$customerManager->name}}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
-                {{--项目来源--}}
-                {{--<div id="value_source" class=""--}}
-                     {{--style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'source') display: block; @else display:none; @endif">--}}
-                    {{--<select name="" id="value_source_select" class="select" style="width: 160px;margin-left: 15px">--}}
-                        {{--@foreach($project_sources as $project_source)--}}
-                                {{--<option value="{{$project_source->source}}" @if ($query_value == $project_source->source) selected="selected" @endif>{{$project_source->source}}</option>--}}
-                        {{--@endforeach--}}
-                    {{--</select>--}}
-                {{--</div>--}}
-                {{--输入文本--}}
                 <div id="value_text" class="" style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name !== 'name') display: none; @endif">
                     <input type="text" class="input input-text" style="width: 160px;margin-left: 15px" value="{{ $filter_name == 'name' && $query_value ? $query_value : '' }}"
                            id="value_text_input">
@@ -177,11 +166,8 @@
                 case "status":
                     value = $('#value_status_select option:selected').val();
                     break;
-                case "customerManagers":
-                    value = $("#value_customerManagers_select option:selected").val();
-                    break;
-                case "source":
-                    value = $("#value_source_select option:selected").val();
+                case "customerManager":
+                    value = $("#value_customerManager_select option:selected").val();
                     break;
                 case "name":
                     value = $('#value_text_input').val();
@@ -194,7 +180,7 @@
         function query_customer() {
             var filter_name = $('#select_customer_filter option:selected').val();
             var filter_value = get_filter_value(filter_name);
-            location.href = "customer_list?filter_name=" + filter_name + "&filter_value=" + filter_value + "";
+            location.href = "/manager/customer?filter_name=" + filter_name + "&filter_value=" + filter_value + "";
         }
 
         //导出客户列表
@@ -207,8 +193,7 @@
             var value_priority = document.getElementById("value_priority");
             var value_text = document.getElementById("value_text");
             var value_status = document.getElementById("value_status");
-            var value_customerManagers = document.getElementById("value_customerManagers");
-            var value_source = document.getElementById("value_source");
+            var value_customerManager = document.getElementById("value_customerManager");
 
             // 改变筛选器名字
             filter_name = obj.value;
@@ -218,36 +203,25 @@
                     value_priority.style.display = "block";
                     value_text.style.display = "none";
                     value_status.style.display = "none";
-                    value_customerManagers.style.display = "none";
-                    value_source.style.display = "none";
+                    value_customerManager.style.display = "none";
                     break;
                 case "status":
                     value_priority.style.display = "none";
                     value_text.style.display = "none";
                     value_status.style.display = "block";
-                    value_customerManagers.style.display = "none";
-                    value_source.style.display = "none";
+                    value_customerManager.style.display = "none";
                     break;
                 case "name":
                     value_priority.style.display = "none";
                     value_text.style.display = "block";
                     value_status.style.display = "none";
-                    value_customerManagers.style.display = "none";
-                    value_source.style.display = "none";
+                    value_customerManager.style.display = "none";
                     break;
-                case "customerManagers":
+                case "customerManager":
                     value_priority.style.display = "none";
                     value_text.style.display = "none";
-                    value_customerManagers.style.display = "block";
+                    value_customerManager.style.display = "block";
                     value_status.style.display = "none";
-                    value_source.style.display = "none";
-                    break;
-                case "source":
-                    value_priority.style.display = "none";
-                    value_text.style.display = "none";
-                    value_status.style.display = "none";
-                    value_customerManagers.style.display = "none";
-                    value_source.style.display = "block";
                     break;
             }
         }
@@ -276,11 +250,11 @@
             var filter_value = get_filter_value(filter_name);
             var sort_mark = document.getElementById("sort_mark").innerHTML;
             if (sort_mark == "desc") {
-                location.href = "customer_list?col=" + orderBy + "&sort=asc&filter_name=" +
+                location.href = "customer?col=" + orderBy + "&sort=asc&filter_name=" +
                         filter_name + "&filter_value=" +
                         filter_value;
             } else if (sort_mark == "asc" || sort_mark == "") {
-                location.href = "customer_list?col=" + orderBy + "&sort=desc&filter_name=" +
+                location.href = "customer?col=" + orderBy + "&sort=desc&filter_name=" +
                         filter_name + "&filter_value=" +
                         filter_value;
             }
@@ -301,7 +275,7 @@
                 }
             });
             $('#reset_query').click(function() {
-                window.location.href = 'customer_list?reset=1' ;
+                window.location.href = '/manager/customer?reset=1' ;
             })
 
         })

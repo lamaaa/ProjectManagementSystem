@@ -21,6 +21,7 @@ use App\User;
 use DB;
 use Carbon\Carbon;
 use Excel;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Entrust;
 
@@ -29,14 +30,15 @@ class CustomerController extends Controller
     // 列出所有客户
     public function index(Request $request)
     {
+        $user = Auth::user();
         // 获取是否打印
         $export = $request->input('export', '');
         // 获取作为排序的列和顺序
         $col = $request->input('col', 'id');
         $sort = $request->input('sort', 'asc');
 
-        $customers = $this->getCustomers();
-
+        $customers = $this->getCustomers($user);
+        $customerManagers = $this->getAllCustomerManagers();
         // 用户点击“查询”
         // 获得搜索的筛选器和值
         // 根据筛选器和筛选值筛选出结果
@@ -45,9 +47,75 @@ class CustomerController extends Controller
         
         if(!$request->get('reset'))
         {
+            Log::info($filter_name);
             $customers = $this->sortWith($sort, $col, $filter_name, $filter_value);
         }
 
+        $this->getCustomerManagers($customers);
+        // 导出excel表
+        if($export != null && $export === 'true')
+        {
+            $this->derivedExcel($customers);
+        }
+
+        return view('admin.manager.customers.customer_index')
+            ->with('sort', $sort)
+            ->with('filter_name', $filter_name)
+            ->with('query_value', $request->get('value'))
+            ->with('customerManagers', $customerManagers)
+            ->with('customers', $customers);
+    }
+
+    // 获取所有的客户经理
+    public function getAllCustomerManagers()
+    {
+        $customerManagers = array();
+        $users = User::all();
+
+        foreach ($users as $user)
+        {
+            if ($user->hasRole('customerManager_*'))
+            {
+                $customerManagers[] = $user;
+            }
+        }
+
+        return $customerManagers;
+    }
+
+    // 根据用户的权限来获取客户
+    public function getCustomers($user)
+    {
+        // 判断身份
+        if ($user->hasRole('admin'))
+        {
+            // 若是超级管理员，提取所有的客户
+            $customers = Customer::all();
+        }
+        else
+        {
+            $customers = array();
+            // 若是客户经理，先提取出所有客户
+            $allCustomers = Customer::all();
+            // 根据根据客户id，查看是否有权限查看客户
+            foreach ($allCustomers as $thisCustomer)
+            {
+                // 若有，将客户push进客户数组中
+                $viewPermission = 'view_' . $thisCustomer->id . '_customer_information';
+                $modifyPermission = 'modify_' . $thisCustomer->id . '_customer_information';
+                if ($user->can([$viewPermission, $modifyPermission]))
+                {
+                    $customers[] = $thisCustomer;
+                }
+            }
+        }
+
+        return $customers;
+    }
+
+    // 获取对应客户的客户经理
+    public function getCustomerManagers($customers)
+    {
         foreach ($customers as $customer)
         {
             $customerManagers = array();
@@ -65,73 +133,24 @@ class CustomerController extends Controller
 
             $customer->customerManagers = $customerManagers;
         }
-
-        // 导出excel表
-        if($export != null && $export === 'true')
-        {
-            $this->derivedExcel($customers);
-        }
-
-        return view('admin.manager.customers.customer_index')
-            ->with('sort', $sort)
-            ->with('filter_name', $filter_name)
-            ->with('query_value', $request->get('value'))
-            ->with('customers', $customers);
-    }
-
-    // 根据登录用户的权限来获取客户
-    public function getCustomers()
-    {
-        // 判断身份
-        if (Entrust::hasRole('admin'))
-        {
-            // 若是超级管理员，提取所有的客户
-            $customers = Customer::all();
-        }
-        else
-        {
-            $customers = array();
-            // 若是客户经理，先提取出所有客户
-            $allCustomers = Customer::all();
-            // 根据根据客户id，查看是否有权限查看客户
-            foreach ($allCustomers as $thisCustomer)
-            {
-                // 若有，将客户push进客户数组中
-                $viewPermission = 'view_' . $thisCustomer->id . '_customer_information';
-                if (Entrust::can($viewPermission))
-                {
-                    $customers[] = $thisCustomer;
-                }
-            }
-        }
-
-        return $customers;
     }
 
     // 客户排序
     public function sortWith($sort, $col, $filter_name, $filter_value)
     {
-        if($sort == "desc")
+        if ($filter_name == "customerManager")
         {
-           if($filter_value == "")
-           {
+            $user = User::where('id', '=', $filter_value)->first();
 
-               return Customer::orderBy($col, 'desc')->get();
-           }
-           return Customer::where($filter_name, '=', $filter_value)
-                ->orderBy($col, 'desc')
-                ->get();
+            return $this->getCustomers($user);
         }
-        else if($sort == "asc")
+        else if ($filter_name == "")
         {
-            if($filter_name == "")
-            {
-                return Customer::orderBy($col, 'asc')->get();
-            }
-            return $customers =  Customer::where($filter_name, '=', $filter_value)
-                ->orderBy($col, 'asc')
-                ->get();
+            return Customer::orderBy($col, 'desc')->get();
         }
+        return Customer::where($filter_name, '=', $filter_value)
+            ->orderBy($col, $sort)
+            ->get();
     }
 
     // 导出Excel表
