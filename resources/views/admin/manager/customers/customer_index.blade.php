@@ -16,7 +16,7 @@
                             style="width: 60%;margin-left: 15px;margin-top: -23px;float: left;margin-left: 100px;">
                         <option value="name" @if ($filter_name === 'name') selected="selected" @endif>客户名称</option>
                         <option value="status" @if ($filter_name === 'status') selected="selected" @endif>状态</option>
-                        <option value="principal" @if ($filter_name === 'customerManagers') selected="selected" @endif>客户经理</option>
+                        <option value="customerManagers" @if ($filter_name === 'customerManagers') selected="selected" @endif>客户经理</option>
                         {{--<option value="source" @if ($filter_name === 'source') selected="selected" @endif>来源</option>--}}
                         <option value="priority" @if ($filter_name === 'priority') selected="selected" @endif>优先级</option>
                     </select>
@@ -43,9 +43,9 @@
                     </select>
                 </div>
                 {{--项目经理--}}
-                <div id="value_principal" class=""
-                     style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'principal') display: block; @else display:none; @endif">
-                    <select name="" id="value_principal_select" class="select" style="width: 160px;margin-left: 15px">
+                <div id="value_customerManagers" class=""
+                     style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'customerManagers') display: block; @else display:none; @endif">
+                    <select name="" id="value_customerManagers_select" class="select" style="width: 160px;margin-left: 15px">
                         {{--@foreach($pms as $pm)--}}
                             {{--<option value="{{$pm->name}}" @if ($query_value == $pm->name) selected="selected" @endif>--}}
                                 {{--{{$pm->name}}--}}
@@ -110,11 +110,10 @@
                     </td>
                     <td>{{$customer->company}}</td>
                     <td>{{$customer->phone}}</td>
-                    {{--<td>--}}
-                        {{--<div class="label label-primary radius">{{$customer->source}}</div>--}}
-                    {{--</td>--}}
                     <td>
-                        <div class="label label-secondary radius">{{$customer->principal}}</div>
+                        @foreach($customer->customerManagers as $customerManager)
+                            <div class="label label-secondary radius">{{$customerManager->name}}</div>
+                        @endforeach
                     </td>
                     <td><span class="label label-success radius">{{$customer->status}}</span></td>
                     <td class="td_created_at">
@@ -178,8 +177,8 @@
                 case "status":
                     value = $('#value_status_select option:selected').val();
                     break;
-                case "principal":
-                    value = $("#value_principal_select option:selected").val();
+                case "customerManagers":
+                    value = $("#value_customerManagers_select option:selected").val();
                     break;
                 case "source":
                     value = $("#value_source_select option:selected").val();
@@ -208,7 +207,7 @@
             var value_priority = document.getElementById("value_priority");
             var value_text = document.getElementById("value_text");
             var value_status = document.getElementById("value_status");
-            var value_principal = document.getElementById("value_principal");
+            var value_customerManagers = document.getElementById("value_customerManagers");
             var value_source = document.getElementById("value_source");
 
             // 改变筛选器名字
@@ -219,27 +218,27 @@
                     value_priority.style.display = "block";
                     value_text.style.display = "none";
                     value_status.style.display = "none";
-                    value_principal.style.display = "none";
+                    value_customerManagers.style.display = "none";
                     value_source.style.display = "none";
                     break;
                 case "status":
                     value_priority.style.display = "none";
                     value_text.style.display = "none";
                     value_status.style.display = "block";
-                    value_principal.style.display = "none";
+                    value_customerManagers.style.display = "none";
                     value_source.style.display = "none";
                     break;
                 case "name":
                     value_priority.style.display = "none";
                     value_text.style.display = "block";
                     value_status.style.display = "none";
-                    value_principal.style.display = "none";
+                    value_customerManagers.style.display = "none";
                     value_source.style.display = "none";
                     break;
-                case "principal":
+                case "customerManagers":
                     value_priority.style.display = "none";
                     value_text.style.display = "none";
-                    value_principal.style.display = "block";
+                    value_customerManagers.style.display = "block";
                     value_status.style.display = "none";
                     value_source.style.display = "none";
                     break;
@@ -247,7 +246,7 @@
                     value_priority.style.display = "none";
                     value_text.style.display = "none";
                     value_status.style.display = "none";
-                    value_principal.style.display = "none";
+                    value_customerManagers.style.display = "none";
                     value_source.style.display = "block";
                     break;
             }

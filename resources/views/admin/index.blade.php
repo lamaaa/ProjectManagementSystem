@@ -12,8 +12,8 @@
     <aside class="Hui-aside">
         <input runat="server" id="divScrollValue" type="hidden" value=""/>
         <div class="menu_dropdown bk_2">
-            {{--拥有“admin”角色才能看到客户管理--}}
-            @role('admin', 'projectManager')
+            {{--拥有“admin”和“customerManager”角色才能看到客户管理--}}
+            @role(['admin','customerManager_*'])
             <dl id="menu-product">
                 <dt><i class="Hui-iconfont">&#xe637;</i> 客户管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
                 </dt>

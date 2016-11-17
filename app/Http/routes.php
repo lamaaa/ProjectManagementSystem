@@ -45,7 +45,7 @@ Route::group(['middleware' => ['auth'],
     Route::get('/', 'IndexController@toIndex');
     Route::get('/welcome', 'IndexController@toWelcome');
 
-    Route::group(['middleware' => ['role:admin'],
+    Route::group(['middleware' => ['role:admin|customerManager_*'],
         'namespace' => 'manager',
         'prefix' => 'manager'], function () {
         Route::resource('user', 'UserController');

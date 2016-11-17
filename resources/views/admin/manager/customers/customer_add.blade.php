@@ -41,7 +41,7 @@
                     {{--超级管理员不作为客户经理的候选项--}}
                     @foreach($users as $user)
                         @if ($user->hasRole('commonUser'))
-                        <input type="checkbox" name="customerManagers" value="{{$user->name}}">
+                        <input type="checkbox" name="customerManagers" value="{{$user->id}}">
                             {{$user->name}}&nbsp&nbsp&nbsp
                         @endif
                     @endforeach
@@ -162,8 +162,7 @@
             }
 
             if (status == "请选择" ||
-                    priority == "请选择" ||
-                    source == "请选择")
+                    priority == "请选择")
             {
                 alert("对不起,信息没有填写完整");
                 return;

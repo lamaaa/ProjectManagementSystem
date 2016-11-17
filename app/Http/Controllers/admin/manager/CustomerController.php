@@ -14,27 +14,29 @@ use App\Entity\Project_source;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateCustomerRequest;
 use App\Models\M3Result;
+use App\Permission;
 use Illuminate\Http\Request;
 use App\Role;
 use App\User;
 use DB;
 use Carbon\Carbon;
 use Excel;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Entrust;
 
 class CustomerController extends Controller
 {
     // 列出所有客户
     public function index(Request $request)
     {
-        $customers = Customer::all();
-        //$project_sources = Project_source::all();
+        // 获取是否打印
         $export = $request->input('export', '');
-
         // 获取作为排序的列和顺序
         $col = $request->input('col', 'id');
         $sort = $request->input('sort', 'asc');
+
+        $customers = $this->getCustomers();
+
         // 用户点击“查询”
         // 获得搜索的筛选器和值
         // 根据筛选器和筛选值筛选出结果
@@ -44,6 +46,24 @@ class CustomerController extends Controller
         if(!$request->get('reset'))
         {
             $customers = $this->sortWith($sort, $col, $filter_name, $filter_value);
+        }
+
+        foreach ($customers as $customer)
+        {
+            $customerManagers = array();
+            $viewPermission = 'view_' . $customer->id . '_customer_information';
+            $modifyPermission = 'modify_' . $customer->id . '_customer_information';
+
+            $users = User::all();
+            foreach ($users as $user)
+            {
+                if ($user->can([$viewPermission, $modifyPermission]))
+                {
+                    $customerManagers[] = $user;
+                }
+            }
+
+            $customer->customerManagers = $customerManagers;
         }
 
         // 导出excel表
@@ -57,7 +77,35 @@ class CustomerController extends Controller
             ->with('filter_name', $filter_name)
             ->with('query_value', $request->get('value'))
             ->with('customers', $customers);
-            //->with('project_sources', $project_sources)
+    }
+
+    // 根据登录用户的权限来获取客户
+    public function getCustomers()
+    {
+        // 判断身份
+        if (Entrust::hasRole('admin'))
+        {
+            // 若是超级管理员，提取所有的客户
+            $customers = Customer::all();
+        }
+        else
+        {
+            $customers = array();
+            // 若是客户经理，先提取出所有客户
+            $allCustomers = Customer::all();
+            // 根据根据客户id，查看是否有权限查看客户
+            foreach ($allCustomers as $thisCustomer)
+            {
+                // 若有，将客户push进客户数组中
+                $viewPermission = 'view_' . $thisCustomer->id . '_customer_information';
+                if (Entrust::can($viewPermission))
+                {
+                    $customers[] = $thisCustomer;
+                }
+            }
+        }
+
+        return $customers;
     }
 
     // 客户排序
@@ -126,43 +174,63 @@ class CustomerController extends Controller
             ->with('users', $users);
     }
 
+    // 增加客户
     public function store(CreateCustomerRequest $request)
     {
         // 增加客户
-        Customer::create($request->all());
-        // 增加来源
-        // 若项目来源表中没有新增项目来源，则增加一条记录
-        Project_source::firstOrCreate(['source' => $request->input('source')]);
-        // 赋予客户经理经理给选中的用户
-        $customerManagers = $request->input('customerManagers');
-        $customerManagerRole = Role::where('name', '=', 'customerManager')->first();
+        $customer = Customer::create($request->all());
 
-        // 创造一个改客户的客户经理角色可以看到对应的客户
+        $customerManager_ids = $request->input('customerManagers');
 
-        // 取得客户姓名
-        $customer_name = $request->input('name');
-        // 取得该客户的id
-        $customer_id = Customer::where('name', '=', $customer_name)->max('id');
-        // 该角色的name为该客户的id + 该客户的名字 + “客户经理”
-        $thisCustomerManagerRole = new Role();
-        $thisCustomerManagerRole->name = $customer_id . $customer_name . '客户经理';
-        $thisCustomerManagerRole->display_name = '负责' . $customer_id . $customer_name . '的客户经理';
-        $thisCustomerManagerRole->description = "对客户" . $customer_id . $customer_name . "负责";
-        $thisCustomerManagerRole->save();
-        foreach ($customerManagers as $customerManager)
+        // 创造查看和修改该客户的权限
+        $permissions = $this->createPermissions($customer);
+
+        foreach ($customerManager_ids as $customerManager_id)
         {
-            // 赋予一个普通的客户经理角色可以看到“客户管理界面”
-            $user = User::where('name', '=', $customerManager)->first();
-            $user->attachRole($customerManagerRole);
-            // 赋予一个该客户的客户经理角色可以看到对应的客户
-            $user->attachRole($thisCustomerManagerRole);
+             // 为选中的用户创造一个客户经理角色
+            $user = User::where('id', '=', $customerManager_id)->first();
+            if ( $user->hasRole('customerManager_' . $user->id))
+            {
+                $customerManagerRole = Role::where('name', '=', 'customerManager_' . $user->id)->first();
+            }
+            else
+            {
+                $customerManagerRole = new Role();
+                $customerManagerRole->name = 'customerManager_' . $user->id;
+                $customerManagerRole->display_name = '客户经理' . $user->name;
+                $customerManagerRole->description = "客户经理可以查看修改客户资料";
+                $customerManagerRole->save();
+                $user->attachRole($customerManagerRole);
+            }
+            $customerManagerRole->attachPermissions($permissions);
         }
 
         $result['status'] = 0;
         $result['message'] = '添加成功';
-        $result['data'] = $customerManagers;
 
         return $result;
+    }
+
+    // 创造查看和修改该客户的权限
+    public function createPermissions($customer)
+    {
+        // 创造一个可以查看该客户的权限
+        $viewCustomerInfo = new Permission();
+        $viewCustomerInfo->name = 'view_' . $customer->id . '_customer_information';
+        $viewCustomerInfo->display_name = '查看客户' . $customer->name;
+        $viewCustomerInfo->description = '查看客户' . $customer->name . "的权限";
+        $viewCustomerInfo->save();
+
+        // 创造一个可以修改该客户的权限j
+        $modifyCustomerInfo = new Permission();
+        $modifyCustomerInfo->name = 'modify_' . $customer->id . '_customer_information';
+        $modifyCustomerInfo->display_name = '修改客户' . $customer->name;
+        $modifyCustomerInfo->description = '修改客户' . $customer->name . '的权限';
+        $modifyCustomerInfo->save();
+
+        $permissions = array($viewCustomerInfo, $modifyCustomerInfo);
+
+        return $permissions;
     }
 
     public function delete(Request $request)
