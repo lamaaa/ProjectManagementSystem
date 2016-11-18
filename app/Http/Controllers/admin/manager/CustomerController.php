@@ -47,7 +47,6 @@ class CustomerController extends Controller
         
         if(!$request->get('reset'))
         {
-            Log::info($filter_name);
             $customers = $this->sortWith($sort, $col, $filter_name, $filter_value);
         }
 
@@ -144,9 +143,10 @@ class CustomerController extends Controller
 
             return $this->getCustomers($user);
         }
-        else if ($filter_name == "")
+        // 如果筛选值为空，那么直接列出全部客户
+        else if ($filter_value == "")
         {
-            return Customer::orderBy($col, 'desc')->get();
+            return Customer::orderBy($col, $sort)->get();
         }
         return Customer::where($filter_name, '=', $filter_value)
             ->orderBy($col, $sort)
@@ -240,7 +240,7 @@ class CustomerController extends Controller
         $viewCustomerInfo->description = '查看客户' . $customer->name . "的权限";
         $viewCustomerInfo->save();
 
-        // 创造一个可以修改该客户的权限j
+        // 创造一个可以修改该客户的权限
         $modifyCustomerInfo = new Permission();
         $modifyCustomerInfo->name = 'modify_' . $customer->id . '_customer_information';
         $modifyCustomerInfo->display_name = '修改客户' . $customer->name;
@@ -252,12 +252,25 @@ class CustomerController extends Controller
         return $permissions;
     }
 
-    public function delete(Request $request)
+    // 删除客户
+    public function destroy($id)
     {
-        $id = $request->input('id', '');
-        Customer::findOrFail($id)->delete();
+        Customer::destroy($id);
+        // 删除该客户对应的查看和修改权限
+        $this->deleteViewAndModifyPermissions($id);
 
-        return redirect('manager/customer_list');
+        return redirect('/manager/customer');
+    }
+
+    // 删除权限
+    public function deleteViewAndModifyPermissions($customer_id)
+    {
+        $viewPermissionName = 'view_' . $customer_id . '_customer_information';
+        $modifyPermissionName = 'modify_' . $customer_id . '_customer_information';
+
+        // 由于使用了级联删除，所以删除权限同时也删除了对应的permission_role关系
+        Permission::where('name', '=', $viewPermissionName)->delete();
+        Permission::where('name', '=', $modifyPermissionName)->delete();
     }
 
     public function getCustomerDetails(Request $request)

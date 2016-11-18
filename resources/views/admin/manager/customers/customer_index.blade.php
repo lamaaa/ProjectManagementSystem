@@ -118,8 +118,13 @@
                         @endif
                     </td>
                     <td>
-                        <a href="javascript:;" onclick="delete_customer('/manager/customer_delete/?id={{$customer->id}}')"
-               class="btn btn-danger radius">删除</a>
+                        <form action="/manager/customer/{{$customer->id}}"
+                              style="display:inline-block" method="POST"
+                              onsubmit="return delete_confirm();">
+                            {{ csrf_field() }}
+                            {{ method_field('DELETE') }}
+                            <button class="btn btn-danger btn-xs radius">删除</button>
+                        </form>
                     </td>
                 </tr>
             @endforeach
@@ -260,12 +265,13 @@
             }
         }
 
-        function delete_customer(url)
+        function delete_confirm()
         {
             if(window.confirm('确认删除该客户？'))
             {
-                window.location.href = url;
+                return true;
             }
+            return false;
         }
 
         $(document).ready(function() {
