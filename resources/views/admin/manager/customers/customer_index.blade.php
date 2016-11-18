@@ -190,7 +190,7 @@
 
         //导出客户列表
         function export_excel_all_customers() {
-            location.href = "customer_list?export=true";
+            location.href = "/manager/customer?export=true";
         }
 
         function filter_change(obj) {
