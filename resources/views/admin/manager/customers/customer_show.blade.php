@@ -18,14 +18,14 @@
                     <div class="row cl" style="height: 38px">
                         <label class="form-label col-sm-2"><span class="c-red"></span>客户ID:</label>
                         <div class="formControls col-sm-6">
-                            <input id="input_id" type="text" name="customer_id" readonly value="{{$customer->id}}" datatype="*">
+                            <input id="input_id" type="text" name="id" readonly value="{{$customer->id}}" datatype="*">
                         </div>
                         <div class="Validform_checktip"></div>
                     </div>
                     <div class="row cl">
                         <label class="form-label col-sm-2"><span class="c-red"></span>客户名称:</label>
                         <div class="formControls col-sm-6">
-                            <input id="input_name" type="text" name="customer_name" value="{{$customer->name}}"
+                            <input id="input_name" type="text" name="name" value="{{$customer->name}}"
                                    class="input-text" datatype="*">
                         </div>
                         <div class="Validform_checktip"></div>
@@ -33,7 +33,7 @@
                     <div class="row cl" style="height: 38px">
                         <label class="form-label col-sm-2"><span class="c-red"></span>客户公司:</label>
                         <div class="formControls col-sm-6">
-                            <input id="input_company" name="customer_company" type="text"
+                            <input id="input_company" name="company" type="text"
                                    value="{{$customer->company}}" class="input-text" datatype="*">
                         </div>
                         <div class="Validform_checktip"></div>
@@ -41,54 +41,36 @@
                     <div class="row cl" style="height: 38px">
                         <label class="form-label col-sm-2"><span class="c-red"></span>联系方式:</label>
                         <div class="formControls col-sm-6">
-                            <input type="text" name="customer_phone" value="{{$customer->phone}}" class="input-text" datatype="*">
+                            <input type="text" name="phone" value="{{$customer->phone}}" class="input-text" datatype="*">
                         </div>
                         <div class="Validform_checktip"></div>
                     </div>
                     <div class="row cl" style="height: 38px">
                         <label class="form-label col-sm-2"><span class="c-red"></span>客户介绍:</label>
                         <div class="formControls col-sm-6">
-                            <textarea type="textarea" class="textarea" id="customer_desc" name="customer_desc" datatype="*">{{$customer->description}}
+                            <textarea type="textarea" class="textarea" id="description" name="customer_desc" datatype="*">{{$customer->description}}
                             </textarea>
                         </div>
                         <div class="Validform_checktip"></div>
                     </div>
                     <div class="row cl" style="height: 38px">
-                        <label class="form-label col-sm-2"><span class="c-red"></span>项目来源:</label>
+                        <label class="form-label col-sm-2"><span class="c-red"></span>客户经理:</label>
                         <div class="formControls col-sm-6">
-                            <select name="source" class="select" id="select_source"
-                                    onchange="source_change();" datatype="*">
-                                <option value="请选择">请选择</option>
-                                @foreach($project_sources as $project_source)
-                                    @if(value($project_source->source) == "")
-                                        <option value="{{$project_source->source}}">空</option>
-                                    @else
-                                        <option value="{{$project_source->source}}">{{$project_source->source}}</option>
-                                    @endif
-                                @endforeach
-                                <option value="other" id="other">其他(自定义)</option>
-                            </select>
-                            <input id="customer_input_source" name="customer_input_source" type="text" value=""
-                                   style="display: none">
-                        </div>
-                        <div class="Validform_checktip"></div>
-                    </div>
-                    <div class="row cl" style="height: 38px">
-                        <label class="form-label col-sm-2"><span class="c-red"></span>项目经理:</label>
-                        <div class="formControls col-sm-6">
-                            <select name="principal" class="select" id="principal_select">
-                                @foreach($pms as $pm)
-                                    <option value="{{$pm->name}}">
-                                        {{$pm->name}}
-                                    </option>
-                                @endforeach
-                            </select>
+                            {{--超级管理员不作为客户经理的候选项--}}
+                            @foreach($users as $user)
+                                @if ($user->hasRole('commonUser'))
+                                    <input type="checkbox" name="customerManagers"
+                                           @if (in_array($user, $customer->customerManagers)) checked="checked" @endif
+                                           value="{{$user->id}}">
+                                    {{$user->name}}&nbsp&nbsp&nbsp
+                                @endif
+                            @endforeach
                         </div>
                     </div>
                     <div class="row cl" style="height: 38px">
                         <label class="form-label col-sm-2"><span class="c-red"></span>项目进度:</label>
                         <div class="formControls col-sm-6">
-                            <select name="customer_status" class="select" id="customer_select_priority">
+                            <select name="status" class="select" id="customer_select_priority">
                                 <option value="未联系">未联系</option>
                                 <option value="沟通中">沟通中</option>
                                 <option value="开发中">开发中</option>
@@ -101,7 +83,7 @@
                     <div class="row cl" style="height: 38px">
                         <label class="form-label col-sm-2"><span class="c-red"></span>优先级:</label>
                         <div class="formControls col-sm-6">
-                            <select name="customer_priority" class="select" id="customer_select_priority">
+                            <select name="priority" class="select" id="customer_select_priority">
                                 <option value="2">高</option>
                                 <option value="1">中</option>
                                 <option value="0">低</option>
@@ -112,7 +94,8 @@
 
                 <div class="row cl">
                     <div class="col-sm-8">
-                        <button onclick="save_customer_details(this);" class="btn btn-primary radius mt-15 ml-10 mb-20" id="save-btn">编辑</button>
+                        <button onclick="save_customer_details(this);"
+                                class="btn btn-primary radius mt-15 ml-10 mb-20" id="save-btn">编辑</button>
                     </div>
                 </div>
 
@@ -152,13 +135,12 @@
                         </tr>
 
                         <tr class="text-c">
-                            <td>项目来源</td>
-                            <td>{{$customer->source}}</td>
-                        </tr>
-
-                        <tr class="text-c">
-                            <td>项目经理</td>
-                            <td>{{$customer->principal}}</td>
+                            <td>客户经理</td>
+                            <td>
+                                @foreach($customer->customerManagers as $customerManager)
+                                    {{$customerManager->name}}
+                                @endforeach
+                            </td>
                         </tr>
 
                         <tr class="text-c">
@@ -181,8 +163,8 @@
                         </tbody>
                     @endif
                 </table>
-
             </div>
+        <div id="form-errors"></div>
             {{--<div id="tab02" class="tabcon" style="display:none;">--}}
                 {{--<table class="table table-border table-bordered table-hover table-bg table-sort">--}}
                     {{--<thead>--}}
@@ -316,8 +298,8 @@
         var status_default = "{{ $customer ? $customer->status : ''}}";
         $("#customer_select_status option[value='" + status_default + "']").attr("selected", true);
 
-        var principal_default = "{{ $customer ? $customer->principal : ''}}";
-        $("#principal_select option[value='" + principal_default + "']").attr("selected", true);
+        var customerManager_default = "{{ $customer ? $customer->customerManager : ''}}";
+        $("#customerManager_select option[value='" + customerManager_default + "']").attr("selected", true);
 
         var source_default = "{{ $customer ? $customer->source : ''}}";
         $("#select_source option[value='" + source_default + "']").attr("selected", true);
@@ -400,61 +382,80 @@
                 $(this).parent().addClass('.col-sm-offset-2');
 
             } else if (content == "保存") {
+                var status = $('select[name=status] option:selected').val();
+                var priority = $('select[name=priority] option:selected').val();
+                var name = $('input[name=name]').val();
+                var company = $('input[name=company]').val();
+                var phone = $('input[name=phone]').val();
+                var description = $('input[name=description]').val();
+                var id = $('input[name=id]').val();
+
+                // 获取项目经理
+                var customerManagers = new Array();
+                $('input[name=customerManagers]:checked').each(function(){
+                    customerManagers.push(this.value);
+                });
+
                 $(this).parent().addClass('.col-sm-offset-2');
-                if (($('input[name=customer_input_source]').val()) !== "") {
-                    source = ($('input[name=customer_input_source]').val());
-                } else {
-                    source = $('select[name=source] option:selected').val();
-                }
-                if ($('select[name=principal] option:selected').val() == "" || source == "" || $('input[name=customer_name]').val() == ""
-                    || $('input[name=customer_company]').val() == "" || $('input[name=customer_phone]').val() == "" || $('textarea[name=customer_desc]').val() == ""
-                    || $('select[name=customer_status] option:selected').val() == "" || $('select[name=customer_priority] option:selected').val() === "")
+                if (name == "" || company == "" || phone == "" ||
+                        status == "" || priority == "" || customerManagers.length == 0
+                )
                 {
-                    console.log($('select[name=principal] option:selected').val(), source, $('input[name=customer_name]').val(), $('input[name=customer_company]').val(), $('input[name=customer_phone]').val(),  $('textarea[name=customer_desc]').val(), $('select[name=customer_status] option:selected').val(), $('select[name=customer_priority] option:selected').val());
-                    alert("未填写完整,请填写完整再提交");
+                    alert("对不起,信息没有填写完整");
+                    return;
+                }
+
+                if (status == "请选择" ||
+                        priority == "请选择")
+                {
+                    alert("对不起,信息没有填写完整");
                     return;
                 }
 
                 //在提交包含 tag 的表单的时候,如果 tag 为空,就会有问题
 
                 $('#form-customer-content-edit').ajaxSubmit({
-                    type: 'post', // 提交方式 get/post
-                    url: '/manager/customer_update', // 需要提交的 url
+                    type: 'PUT', // 提交方式 get/post
+                    url: '/manager/customer/{{$customer->id}}', // 需要提交的 url
                     dataType: 'json',
                     data: {
-                        customer_id: "{{$customer->id}}",
-                        principal: $('select[name=principal] option:selected').val(),
-                        source: source,
-                        name: $('input[name=customer_name]').val(),
-                        company: $('input[name=customer_company]').val(),
-                        phone: $('input[name=customer_phone]').val(),
-                        desc: $('textarea[name=customer_desc]').val(),
-                        status: $('select[name=customer_status] option:selected').val(),
-                        priority: $('select[name=customer_priority] option:selected').val(),
+                        id: '{{$customer->id}}',
+                        name: name,
+                        company: company,
+                        phone: phone,
+                        description: description,
+                        customerManagers: customerManagers,
+                        status: status,
+                        priority: priority,
                         _token: "{{csrf_token()}}"
                     },
                     success: function (data) {
                         if (data == null) {
-                            alert('1');
                             layer.msg('服务端错误', {icon: 2, time: 2000});
                             return;
                         }
                         if (data.status != 0) {
-                            alert('2');
                             layer.msg(data.message, {icon: 2, time: 2000});
                             return;
                         }
-                        alert('4');
                         layer.msg(data.message, {icon: 1, time: 2000});
                         parent.location.reload();
                     },
-                    error: function (xhr, status, error) {
-                        alert(status);
-                        layer.msg('ajax error', {icon: 2, time: 2000});
+                    error: function (data) {
+                        if( data.status === 422 ) {
+                            //process validation errors here.
+                            var errors = errors = $.parseJSON(data.responseText); //this will get the errors response data.
+
+                            errorsHtml = '<div class="alert alert-danger"><ul>';
+
+                            $.each( errors, function( key, value ) {
+                                errorsHtml += '<li>' + value[0] + '</li><br>'; //showing only the first error.
+                            });
+                            errorsHtml += '</ul></div>';
+
+                            $( '#form-errors' ).html( errorsHtml ); //appending to a <div id="form-errors"></div> inside form
+                        }
                     },
-                    beforeSend: function (xhr) {
-                        layer.load(0, {shade: false});
-                    }
                 });
             }
 

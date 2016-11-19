@@ -12,7 +12,7 @@ namespace App\Http\Controllers\admin\manager;
 use App\Entity\Customer;
 use App\Entity\Project_source;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateCustomerRequest;
+use App\Http\Requests\CreateAndUpdateCustomerRequest;
 use App\Models\M3Result;
 use App\Permission;
 use Illuminate\Http\Request;
@@ -24,6 +24,7 @@ use Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Entrust;
+use Illuminate\Database\Eloquent\Collection;
 
 class CustomerController extends Controller
 {
@@ -50,7 +51,7 @@ class CustomerController extends Controller
             $customers = $this->sortWith($sort, $col, $filter_name, $filter_value);
         }
 
-        $this->getCustomerManagers($customers);
+        $this->attachCustomerManagers($customers);
         // 导出excel表
         if($export != null && $export === 'true')
         {
@@ -63,6 +64,107 @@ class CustomerController extends Controller
             ->with('query_value', $request->get('value'))
             ->with('customerManagers', $customerManagers)
             ->with('customers', $customers);
+    }
+
+    // 增加客户表单
+    public function create()
+    {
+        $project_sources = Project_source::all();
+        $users = \App\User::all();
+
+        return view('admin.manager.customers.customer_add')
+            ->with('project_sources', $project_sources)
+            ->with('users', $users);
+    }
+
+    // 增加客户
+    public function store(CreateAndUpdateCustomerRequest $request)
+    {
+        // 增加客户
+        $customer = Customer::create($request->all());
+
+        $customerManager_ids = $request->input('customerManagers');
+
+        // 创造查看和修改该客户的权限
+        $permissions = $this->createPermissions($customer);
+
+        foreach ($customerManager_ids as $customerManager_id)
+        {
+            // 为选中的用户创造一个客户经理角色
+            $user = User::where('id', '=', $customerManager_id)->first();
+            if ( $user->hasRole('customerManager_' . $user->id))
+            {
+                $customerManagerRole = Role::where('name', '=', 'customerManager_' . $user->id)->first();
+            }
+            else
+            {
+                $customerManagerRole = new Role();
+                $customerManagerRole->name = 'customerManager_' . $user->id;
+                $customerManagerRole->display_name = '客户经理' . $user->name;
+                $customerManagerRole->description = "客户经理可以查看修改客户资料";
+                $customerManagerRole->save();
+                $user->attachRole($customerManagerRole);
+            }
+            $customerManagerRole->attachPermissions($permissions);
+        }
+
+        $result['status'] = 0;
+        $result['message'] = '添加成功';
+
+        return $result;
+    }
+
+    // 删除客户
+    public function destroy($id)
+    {
+        Customer::destroy($id);
+        // 删除该客户对应的查看和修改权限
+        $this->deleteViewAndModifyPermissions($id);
+
+        return redirect('/manager/customer');
+    }
+
+    // 展示客户详情
+    public function show($id)
+    {
+        if ($id == null)
+        {
+            return;
+        }
+        $customer = Customer::findOrFail($id);
+        $this->attachCustomerManagers($customer);
+        $users = User::all();
+
+        return view('admin.manager.customers.customer_show')
+            ->with('users', $users)
+            ->with('customer', $customer);
+
+    }
+
+    // 更新客户资料
+    public function update(CreateAndUpdateCustomerRequest $request)
+    {
+        $id = $request->input('id');
+        $name = $request->input('name', '');
+        $company = $request->input('company', '');
+        $phone = $request->input('phone', '');
+        $description = $request->input('desc', '');
+        $status = $request->input('status', '');
+        $priority = $request->input('priority', '');
+        Customer::where('id', '=', $id)
+            ->update([
+                'name' => $name,
+                'company' => $company,
+                'phone' => $phone,
+                'description' => $description,
+                'status' => $status,
+                'priority' => $priority,
+            ]);
+
+        $result['status'] = 0;
+        $result['message'] = '更新成功';
+
+        return $result;
     }
 
     // 获取所有的客户经理
@@ -112,15 +214,18 @@ class CustomerController extends Controller
         return $customers;
     }
 
-    // 获取对应客户的客户经理
-    public function getCustomerManagers($customers)
+    // 为各个客户附上对应客户的客户经理
+    public function attachCustomerManagers($customer)
     {
-        foreach ($customers as $customer)
+        if (!$customer instanceof Collection)
+        {
+            $customer = collect([$customer]);
+        }
+        foreach ($customer as $thisCustomer)
         {
             $customerManagers = array();
-            $viewPermission = 'view_' . $customer->id . '_customer_information';
-            $modifyPermission = 'modify_' . $customer->id . '_customer_information';
-
+            $viewPermission = 'view_' . $thisCustomer->id . '_customer_information';
+            $modifyPermission = 'modify_' . $thisCustomer->id . '_customer_information';
             $users = User::all();
             foreach ($users as $user)
             {
@@ -129,8 +234,7 @@ class CustomerController extends Controller
                     $customerManagers[] = $user;
                 }
             }
-
-            $customer->customerManagers = $customerManagers;
+            $thisCustomer->customerManagers = $customerManagers;
         }
     }
 
@@ -182,54 +286,6 @@ class CustomerController extends Controller
         })->export('xls');
     }
 
-    // 增加客户表单
-    public function create()
-    {
-        $project_sources = Project_source::all();
-        $users = \App\User::all();
-
-        return view('admin.manager.customers.customer_add')
-            ->with('project_sources', $project_sources)
-            ->with('users', $users);
-    }
-
-    // 增加客户
-    public function store(CreateCustomerRequest $request)
-    {
-        // 增加客户
-        $customer = Customer::create($request->all());
-
-        $customerManager_ids = $request->input('customerManagers');
-
-        // 创造查看和修改该客户的权限
-        $permissions = $this->createPermissions($customer);
-
-        foreach ($customerManager_ids as $customerManager_id)
-        {
-             // 为选中的用户创造一个客户经理角色
-            $user = User::where('id', '=', $customerManager_id)->first();
-            if ( $user->hasRole('customerManager_' . $user->id))
-            {
-                $customerManagerRole = Role::where('name', '=', 'customerManager_' . $user->id)->first();
-            }
-            else
-            {
-                $customerManagerRole = new Role();
-                $customerManagerRole->name = 'customerManager_' . $user->id;
-                $customerManagerRole->display_name = '客户经理' . $user->name;
-                $customerManagerRole->description = "客户经理可以查看修改客户资料";
-                $customerManagerRole->save();
-                $user->attachRole($customerManagerRole);
-            }
-            $customerManagerRole->attachPermissions($permissions);
-        }
-
-        $result['status'] = 0;
-        $result['message'] = '添加成功';
-
-        return $result;
-    }
-
     // 创造查看和修改该客户的权限
     public function createPermissions($customer)
     {
@@ -251,17 +307,6 @@ class CustomerController extends Controller
 
         return $permissions;
     }
-
-    // 删除客户
-    public function destroy($id)
-    {
-        Customer::destroy($id);
-        // 删除该客户对应的查看和修改权限
-        $this->deleteViewAndModifyPermissions($id);
-
-        return redirect('/manager/customer');
-    }
-
     // 删除权限
     public function deleteViewAndModifyPermissions($customer_id)
     {
@@ -271,57 +316,6 @@ class CustomerController extends Controller
         // 由于使用了级联删除，所以删除权限同时也删除了对应的permission_role关系
         Permission::where('name', '=', $viewPermissionName)->delete();
         Permission::where('name', '=', $modifyPermissionName)->delete();
-    }
-
-    public function getCustomerDetails(Request $request)
-    {
-        $customer_id = $request->input('customer_id', null);
-        if($customer_id == null)
-        {
-            return;
-        }
-        $customer = Customer::findOrFail($customer_id);
-        $pms = User::where('role', '=', '项目经理')->get();
-        $project_sources = Project_source::all();
-
-        return view('manager.customer_details')
-            ->with('customer', $customer)
-            ->with('pms', $pms)
-            ->with('project_sources', $project_sources);
-    }
-
-    public function update(Request $request)
-    {
-        // 若项目来源表中没有新增项目来源，则增加一条记录
-        Project_source::firstOrCreate(['source' => $request->input('source', '')]);
-
-        $customer_id = $request->input('customer_id', '');
-        $name = $request->input('name', '');
-        $company = $request->input('company', '');
-        $phone = $request->input('phone', '');
-        $description = $request->input('desc', '');
-        $status = $request->input('status', '');
-        $priority = $request->input('priority', '');
-        $source = $request->input('source', '');
-        $principal = $request->input('principal', '');
-        $new_customer = Customer::findOrFail($customer_id);
-
-        $new_customer->name = $name;
-        $new_customer->company = $company;
-        $new_customer->phone = $phone;
-        $new_customer->description = $description;
-        $new_customer->source = $source;
-        $new_customer->principal = $principal;
-        $new_customer->status = $status;
-        $new_customer->priority = $priority;
-
-        $new_customer->save();
-
-        $m3_result = new M3Result();
-        $m3_result->status = 0;
-        $m3_result->message = "添加成功";
-
-        return $m3_result->toJson();
     }
 }
 

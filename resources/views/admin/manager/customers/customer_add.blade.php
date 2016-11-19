@@ -48,29 +48,6 @@
                 </div>
                 <div class="Validform_checktip"></div>
             </div>
-
-            {{--<div class="row cl" style="height: 38px">--}}
-                {{--<label class="form-label col-sm-2"><span class="c-red"></span>来源:</label>--}}
-                {{--<div class="formControls col-sm-4">--}}
-                    {{--<select name="source" class="select" id="select_source"--}}
-                            {{--onchange="source_change();" datatype="*">--}}
-                        {{--<option value="请选择">请选择</option>--}}
-                        {{--@foreach($project_sources as $project_source)--}}
-                            {{--@if(value($project_source->source) == "")--}}
-                                {{--<option value="{{$project_source->source}}">空</option>--}}
-                            {{--@else--}}
-                                {{--<option value="{{$project_source->source}}">{{$project_source->source}}</option>--}}
-                            {{--@endif--}}
-                        {{--@endforeach--}}
-                        {{--<option value="other" id="other">其他(自定义)</option>--}}
-                    {{--</select>--}}
-                            {{--<input id="customer_input_source" type="text" value="" name="customer_input_source"--}}
-                                   {{--class="input-text" datatype="*" style="display: none;">--}}
-                    {{--<div class="Validform_checktip"></div>--}}
-                {{--</div>--}}
-                {{--<div class="Validform_checktip"></div>--}}
-            {{--</div>--}}
-
             <div class="row cl" style="height: 38px">
                 <label class="form-label col-sm-2"><span class="c-red"></span>状态：</label>
                 <div class="formControls col-sm-4">
@@ -133,7 +110,6 @@
 
         function add_customer_query()
         {
-//            var source = $('#select_source option:selected').val();
             var status = $('select[name=status] option:selected').val();
             var priority = $('select[name=priority] option:selected').val();
             var name = $('input[name=name]').val();
@@ -147,14 +123,8 @@
                 customerManagers.push(this.value);
             });
 
-//            // 获取来源
-//            if(source == 'other')
-//            {
-//                source = $('input[name=customer_input_source]').val();
-//            }
-
             if (name == "" || company == "" || phone == "" ||
-                     status == "" || priority == ""
+                     status == "" || priority == "" || customerManagers.length == 0
             )
             {
                 alert("对不起,信息没有填写完整");
@@ -168,6 +138,9 @@
                 return;
             }
 
+            status = (status == "请选择") ? '' : status;
+            priority = (priority == "请选择") ? '' : priority;
+
             $('#form-customer-add').ajaxSubmit({
                 type: 'POST', // 提交方式 get/post
                 url: '/manager/customer', // 需要提交的 url
@@ -177,7 +150,6 @@
                     company: company,
                     phone: phone,
                     description: description,
-//                    source: source,
                     customerManagers: customerManagers,
                     status: status,
                     priority: priority,

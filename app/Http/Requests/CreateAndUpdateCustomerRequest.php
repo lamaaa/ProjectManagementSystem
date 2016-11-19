@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 
-class CreateCustomerRequest extends Request
+class CreateAndUpdateCustomerRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,6 @@ class CreateCustomerRequest extends Request
             'name' => 'required|max:255',
             'company' => 'required|max:255',
             'phone' => 'required',
-            //'source' => 'required',
             'status' => 'required',
             'priority' => 'required|digits:1',
             'customerManagers' => 'required',

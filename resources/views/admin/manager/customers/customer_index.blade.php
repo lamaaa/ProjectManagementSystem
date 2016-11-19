@@ -92,8 +92,8 @@
                 <tr class="text-c">
                     <td>{{$customer->id}}</td>
                     <td width="">
-                        <a title="详情" href="javascript:;"
-                           onclick="customer_details('客户详情','customer_details?customer_id={{$customer->id}}&from=customer_list')"
+                        <a title="客户详情" href="javascript:;"
+                           onclick="customer_details('客户详情','customer/{{$customer->id}}')"
                            class="ml-5"
                            style="text-decoration:none;color: #5A98DE">{{$customer->name}}</a>
                     </td>
