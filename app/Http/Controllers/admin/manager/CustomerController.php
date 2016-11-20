@@ -149,16 +149,12 @@ class CustomerController extends Controller
         $company = $request->input('company', '');
         $phone = $request->input('phone', '');
         $description = $request->input('desc', '');
-        $status = $request->input('status', '');
-        $priority = $request->input('priority', '');
         Customer::where('id', '=', $id)
             ->update([
                 'name' => $name,
                 'company' => $company,
                 'phone' => $phone,
                 'description' => $description,
-                'status' => $status,
-                'priority' => $priority,
             ]);
 
         $result['status'] = 0;

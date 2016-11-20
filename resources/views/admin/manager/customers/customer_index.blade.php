@@ -15,9 +15,7 @@
                     <select name="" onchange="filter_change(this);" id="select_customer_filter" class="select"
                             style="width: 60%;margin-left: 15px;margin-top: -23px;float: left;margin-left: 100px;">
                         <option value="name" @if ($filter_name === 'name') selected="selected" @endif>客户名称</option>
-                        <option value="status" @if ($filter_name === 'status') selected="selected" @endif>状态</option>
                         <option value="customerManager" @if ($filter_name === 'customerManager') selected="selected" @endif>客户经理</option>
-                        <option value="priority" @if ($filter_name === 'priority') selected="selected" @endif>优先级</option>
                     </select>
                 </div>
                 {{--项目经理--}}
@@ -130,12 +128,6 @@
 
             switch (filter_name)
             {
-                case "priority":
-                    value = $('#value_priority_select option:selected').val();
-                    break;
-                case "status":
-                    value = $('#value_status_select option:selected').val();
-                    break;
                 case "customerManager":
                     value = $("#value_customerManager_select option:selected").val();
                     break;
@@ -159,39 +151,20 @@
         }
 
         function filter_change(obj) {
-
-            var value_priority = document.getElementById("value_priority");
             var value_text = document.getElementById("value_text");
-            var value_status = document.getElementById("value_status");
             var value_customerManager = document.getElementById("value_customerManager");
 
             // 改变筛选器名字
             filter_name = obj.value;
 
             switch (filter_name) {
-                case "priority":
-                    value_priority.style.display = "block";
-                    value_text.style.display = "none";
-                    value_status.style.display = "none";
-                    value_customerManager.style.display = "none";
-                    break;
-                case "status":
-                    value_priority.style.display = "none";
-                    value_text.style.display = "none";
-                    value_status.style.display = "block";
-                    value_customerManager.style.display = "none";
-                    break;
                 case "name":
-                    value_priority.style.display = "none";
                     value_text.style.display = "block";
-                    value_status.style.display = "none";
                     value_customerManager.style.display = "none";
                     break;
                 case "customerManager":
-                    value_priority.style.display = "none";
                     value_text.style.display = "none";
                     value_customerManager.style.display = "block";
-                    value_status.style.display = "none";
                     break;
             }
         }

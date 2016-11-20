@@ -82,8 +82,6 @@
 
         function add_customer_query()
         {
-            var status = $('select[name=status] option:selected').val();
-            var priority = $('select[name=priority] option:selected').val();
             var name = $('input[name=name]').val();
             var company = $('input[name=company]').val();
             var phone = $('input[name=phone]').val();
@@ -96,22 +94,12 @@
             });
 
             if (name == "" || company == "" || phone == "" ||
-                     status == "" || priority == "" || customerManagers.length == 0
+                      customerManagers.length == 0
             )
             {
                 alert("对不起,信息没有填写完整");
                 return;
             }
-
-            if (status == "请选择" ||
-                    priority == "请选择")
-            {
-                alert("对不起,信息没有填写完整");
-                return;
-            }
-
-            status = (status == "请选择") ? '' : status;
-            priority = (priority == "请选择") ? '' : priority;
 
             $('#form-customer-add').ajaxSubmit({
                 type: 'POST', // 提交方式 get/post
@@ -123,8 +111,6 @@
                     phone: phone,
                     description: description,
                     customerManagers: customerManagers,
-                    status: status,
-                    priority: priority,
                     _token: "{{csrf_token()}}"
                 },
                 success: function (data) {
