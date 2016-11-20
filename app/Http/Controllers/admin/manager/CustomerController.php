@@ -51,7 +51,10 @@ class CustomerController extends Controller
             $customers = $this->sortWith($sort, $col, $filter_name, $filter_value);
         }
 
-        $this->attachCustomerManagers($customers);
+        if ($customers != null)
+        {
+            $this->attachCustomerManagers($customers);
+        }
         // 导出excel表
         if($export != null && $export === 'true')
         {
@@ -61,7 +64,7 @@ class CustomerController extends Controller
         return view('admin.manager.customers.customer_index')
             ->with('sort', $sort)
             ->with('filter_name', $filter_name)
-            ->with('query_value', $request->get('value'))
+            ->with('query_value', $filter_value)
             ->with('customerManagers', $customerManagers)
             ->with('customers', $customers);
     }
@@ -251,7 +254,7 @@ class CustomerController extends Controller
     // 为各个客户附上对应客户的客户经理
     public function attachCustomerManagers($customer)
     {
-        if (!$customer instanceof Collection)
+        if ((!$customer instanceof Collection) && (!is_array($customer)))
         {
             $customer = collect([$customer]);
         }

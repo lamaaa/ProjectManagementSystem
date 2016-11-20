@@ -23,7 +23,7 @@
                      style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'customerManager') display: block; @else display:none; @endif">
                     <select name="" id="value_customerManager_select" class="select" style="width: 160px;margin-left: 15px">
                         @foreach($customerManagers as $customerManager)
-                            <option value="{{$customerManager->id}}" @if ($query_value == $customerManager->name) selected="selected" @endif>
+                            <option value="{{$customerManager->id}}" @if ($query_value == $customerManager->id) selected="selected" @endif>
                                 {{$customerManager->name}}
                             </option>
                         @endforeach
