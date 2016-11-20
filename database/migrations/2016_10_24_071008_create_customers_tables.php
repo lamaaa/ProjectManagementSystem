@@ -20,9 +20,6 @@ class CreateCustomersTable extends Migration
             $table->string('company');
             $table->string('phone');
             $table->text('description');
-            $table->text('source');
-            $table->text('status');
-            $table->integer('priority');
         });
     }
 

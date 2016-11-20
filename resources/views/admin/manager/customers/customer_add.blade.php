@@ -48,34 +48,6 @@
                 </div>
                 <div class="Validform_checktip"></div>
             </div>
-            <div class="row cl" style="height: 38px">
-                <label class="form-label col-sm-2"><span class="c-red"></span>状态：</label>
-                <div class="formControls col-sm-4">
-                        <select name="status" class="select" id="customer_select_priority" datatype="*">
-                            <option value="请选择">请选择</option>
-                            <option value="未联系">未联系</option>
-                            <option value="沟通中">沟通中</option>
-                            <option value="开发中">开发中</option>
-                            <option value="测试中">测试中</option>
-                            <option value="已完成">已完成</option>
-                        </select>
-                    <div class="Validform_checktip"></div>
-                </div>
-            </div>
-
-            {{--优先级--}}
-            <div class="row cl" style="height: 38px">
-                <label class="form-label col-sm-2"><span class="c-red"></span>优先级：</label>
-                <div class="formControls col-sm-4">
-                    <select name="priority" class="select" id="customer_select_priority" datatype="*">
-                        <option value="请选择">请选择</option>
-                        <option value="2">高</option>
-                        <option value="1">中</option>
-                        <option value="0">低</option>
-                    </select>
-                    <div class="Validform_checktip"></div>
-                </div>
-            </div>
         </form>
 
         <div class="row cl">
