@@ -27,8 +27,6 @@ class CreateAndUpdateCustomerRequest extends Request
             'name' => 'required|max:255',
             'company' => 'required|max:255',
             'phone' => 'required',
-            'status' => 'required',
-            'priority' => 'required|digits:1',
             'customerManagers' => 'required',
         ];
     }
@@ -40,10 +38,6 @@ class CreateAndUpdateCustomerRequest extends Request
             'name.max' => '客户姓名不能超过255个字符',
             'company.required' => '请填写客户公司',
             'phone.required' => '请填写联系电话',
-            //'source.required' => '请选择客户来源',
-            'status.required' => '请选择进度',
-            'priority.required' => '请选择优先级',
-            'priority.digits' => '请选择优先级',
             'customerManagers.required' => '请选择客户经理',
         ];
     }

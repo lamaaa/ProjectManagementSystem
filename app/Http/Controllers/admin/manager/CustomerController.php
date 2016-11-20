@@ -86,7 +86,7 @@ class CustomerController extends Controller
         $customerManager_ids = $request->input('customerManagers');
 
         // 创造查看和修改该客户的权限
-        $permissions = $this->createPermissions($customer);
+        $permissions = $this->createViewAndModifyPermissions($customer);
 
         foreach ($customerManager_ids as $customerManager_id)
         {
@@ -117,9 +117,10 @@ class CustomerController extends Controller
     // 删除客户
     public function destroy($id)
     {
-        Customer::destroy($id);
+        $customer = Customer::findOrFail($id);
         // 删除该客户对应的查看和修改权限
-        $this->deleteViewAndModifyPermissions($id);
+        $this->deleteViewAndModifyPermissions($customer);
+        $customer->delete();
 
         return redirect('/manager/customer');
     }
@@ -149,6 +150,8 @@ class CustomerController extends Controller
         $company = $request->input('company', '');
         $phone = $request->input('phone', '');
         $description = $request->input('desc', '');
+        $newCustomerManager_ids = $request->input('customerManagers');
+
         Customer::where('id', '=', $id)
             ->update([
                 'name' => $name,
@@ -157,10 +160,45 @@ class CustomerController extends Controller
                 'description' => $description,
             ]);
 
+        $customer = Customer::findOrFail($id);
+        $this->updateCustomerManagers($customer, $newCustomerManager_ids);
+
         $result['status'] = 0;
         $result['message'] = '更新成功';
 
         return $result;
+    }
+
+    public function updateCustomerManagers($customer, $newCustomerManager_ids)
+    {
+        $this->attachCustomerManagers($customer);
+        $customerManagers = $customer->customerManagers;
+        $newCustomerManagers = array();
+        foreach ($newCustomerManager_ids as $newCustomerManager_id)
+        {
+            $newCustomerManagers[] = User::findOrFail($newCustomerManager_id);
+        }
+        // 找出新老客户经理的差异
+        $deletedCustomerManagers = array_diff($customerManagers, $newCustomerManagers);
+        $addedCustomerManagers = array_diff($newCustomerManagers, $customerManagers);
+        $customerManagers_diff = array_merge($deletedCustomerManagers, $addedCustomerManagers);
+
+        foreach ($customerManagers_diff as $customerManager)
+        {
+            // 获得该权限
+            $permissions = $this->getViewAndModifyPermissions($customer);
+            $customerManagerRole = Role::where('name', '=', 'customerManager_' . $customerManager->id)->first();
+            if (in_array($customerManager, $customerManagers))
+            {
+                // detach该角色的该权限
+                $customerManagerRole->detachPermissions($permissions);
+            }
+            else
+            {
+                // attach该角色的该权限
+                $customerManagerRole->attachPermissions($permissions);
+            }
+        }
     }
 
     // 获取所有的客户经理
@@ -283,7 +321,7 @@ class CustomerController extends Controller
     }
 
     // 创造查看和修改该客户的权限
-    public function createPermissions($customer)
+    public function createViewAndModifyPermissions($customer)
     {
         // 创造一个可以查看该客户的权限
         $viewCustomerInfo = new Permission();
@@ -303,15 +341,28 @@ class CustomerController extends Controller
 
         return $permissions;
     }
+
     // 删除权限
-    public function deleteViewAndModifyPermissions($customer_id)
+    public function deleteViewAndModifyPermissions($customer)
     {
-        $viewPermissionName = 'view_' . $customer_id . '_customer_information';
-        $modifyPermissionName = 'modify_' . $customer_id . '_customer_information';
+        $permissions = $this->getViewAndModifyPermissions($customer);
 
         // 由于使用了级联删除，所以删除权限同时也删除了对应的permission_role关系
-        Permission::where('name', '=', $viewPermissionName)->delete();
-        Permission::where('name', '=', $modifyPermissionName)->delete();
+        foreach ($permissions as $permission)
+        {
+            $permission->delete();
+        }
+    }
+
+    public function getViewAndModifyPermissions($customer)
+    {
+        $viewPermissionName = 'view_' . $customer->id . '_customer_information';
+        $modifyPermissionName = 'modify_' . $customer->id . '_customer_information';
+
+        $permissions = [Permission::where('name', '=', $viewPermissionName)->first(),
+                        Permission::where('name', '=', $modifyPermissionName)->first()];
+
+        return $permissions;
     }
 }
 
