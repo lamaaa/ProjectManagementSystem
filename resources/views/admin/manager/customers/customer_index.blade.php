@@ -20,27 +20,6 @@
                         <option value="priority" @if ($filter_name === 'priority') selected="selected" @endif>优先级</option>
                     </select>
                 </div>
-
-                {{--优先级--}}
-                <div id="value_priority" class=""
-                     style="height: 30px;display: inline;float: left; @if (isset($filter_name) && $filter_name === 'priority') display: block; @else display:none; @endif">
-                    <select name="" id="value_priority_select" class="select" style="width: 160px;margin-left: 15px">
-                        <option value="2" @if ($query_value == '2') selected="selected" @endif>高</option>
-                        <option value="1" @if ($query_value == '1') selected="selected" @endif>中</option>
-                        <option value="0" @if ($query_value == '0') selected="selected" @endif>低</option>
-                    </select>
-                </div>
-                {{--进度--}}
-                <div id="value_status" class=""
-                     style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'status') display: block; @else display:none; @endif">
-                    <select name="" id="value_status_select" class="select" style="width: 160px;margin-left: 15px">
-                        <option value="未联系" @if ($query_value == '未联系') selected="selected" @endif>未联系</option>
-                        <option value="沟通中" @if ($query_value == '沟通中') selected="selected" @endif>沟通中</option>
-                        <option value="开发中" @if ($query_value == '开发中') selected="selected" @endif>开发中</option>
-                        <option value="测试中" @if ($query_value == '测试中') selected="selected" @endif>测试中</option>
-                        <option value="已完成" @if ($query_value == '已完成') selected="selected" @endif>已完成</option>
-                    </select>
-                </div>
                 {{--项目经理--}}
                 <div id="value_customerManager" class=""
                      style="height: 30px;display: inline;float: left;@if (isset($filter_name) && $filter_name === 'customerManager') display: block; @else display:none; @endif">
@@ -77,12 +56,8 @@
                 <th width="">联系方式</th>
                 {{--<th width="">来源</th>--}}
                 <th width="">客户经理</th>
-                <th width="">状态</th>
                 <th width="90" onclick="sort('created_at');">添加时间<i class="Hui-iconfont"
                                                              style="margin-left: 6px;cursor: pointer">
-                        &#xe675;</i></th>
-                <th width="80" onclick="sort('priority');">优先级<i class="Hui-iconfont"
-                                                                style="margin-left: 6px;cursor: pointer">
                         &#xe675;</i></th>
                 <th width="">操作</th>
             </tr>
@@ -104,18 +79,8 @@
                             <div class="label label-secondary radius">{{$customerManager->name}}</div>
                         @endforeach
                     </td>
-                    <td><span class="label label-success radius">{{$customer->status}}</span></td>
                     <td class="td_created_at">
                         {{$customer->created_at}}
-                    </td>
-                    <td>
-                        @if(value($customer->priority) === 1)
-                            中
-                        @elseif(value($customer->priority) === 2)
-                            高
-                        @elseif(value($customer->priority) === 0)
-                            低
-                        @endif
                     </td>
                     <td>
                         <form action="/manager/customer/{{$customer->id}}"
