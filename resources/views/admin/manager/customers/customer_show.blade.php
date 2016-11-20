@@ -67,29 +67,6 @@
                             @endforeach
                         </div>
                     </div>
-                    <div class="row cl" style="height: 38px">
-                        <label class="form-label col-sm-2"><span class="c-red"></span>项目进度:</label>
-                        <div class="formControls col-sm-6">
-                            <select name="status" class="select" id="customer_select_priority">
-                                <option value="未联系">未联系</option>
-                                <option value="沟通中">沟通中</option>
-                                <option value="开发中">开发中</option>
-                                <option value="测试中">测试中</option>
-                                <option value="已完成">已完成</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row cl" style="height: 38px">
-                        <label class="form-label col-sm-2"><span class="c-red"></span>优先级:</label>
-                        <div class="formControls col-sm-6">
-                            <select name="priority" class="select" id="customer_select_priority">
-                                <option value="2">高</option>
-                                <option value="1">中</option>
-                                <option value="0">低</option>
-                            </select>
-                        </div>
-                    </div>
                 </form>
 
                 <div class="row cl">
@@ -143,23 +120,6 @@
                             </td>
                         </tr>
 
-                        <tr class="text-c">
-                            <td>项目进度</td>
-                            <td>{{$customer->status}}</td>
-                        </tr>
-
-                        <tr class="text-c">
-                            <td>优先级</td>
-                            <td>
-                                @if(value($customer->priority) === 1)
-                                    中
-                                @elseif(value($customer->priority) === 2)
-                                    高
-                                @elseif(value($customer->priority) === 0)
-                                    低
-                                @endif
-                            </td>
-                        </tr>
                         </tbody>
                     @endif
                 </table>
